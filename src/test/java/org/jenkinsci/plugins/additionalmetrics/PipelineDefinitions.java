@@ -40,6 +40,10 @@ class PipelineDefinitions {
         return new CpsFlowDefinition("node { echo 'Hello, World!' }", true);
     }
 
+    static CpsFlowDefinition unstableDefinition() {
+        return new CpsFlowDefinition("node { currentBuild.result = 'UNSTABLE' }", true);
+    }
+
     static CpsFlowDefinition sleepDefinition(int seconds) {
         return new CpsFlowDefinition("node { sleep " + seconds + " }", true);
     }
@@ -47,4 +51,5 @@ class PipelineDefinitions {
     static CpsFlowDefinition slowDefinition() {
         return sleepDefinition(60);
     }
+
 }

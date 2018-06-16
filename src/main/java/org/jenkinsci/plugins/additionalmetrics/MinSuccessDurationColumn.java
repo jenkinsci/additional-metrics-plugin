@@ -49,7 +49,8 @@ public class MinSuccessDurationColumn extends ListViewColumn {
         return findRun(
                 job.getBuilds(),
                 SUCCESS,
-                MIN_DURATION);
+                MIN_DURATION
+        );
     }
 
     @Extension

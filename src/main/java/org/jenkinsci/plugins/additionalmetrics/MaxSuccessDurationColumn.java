@@ -49,7 +49,8 @@ public class MaxSuccessDurationColumn extends ListViewColumn {
         return findRun(
                 job.getBuilds(),
                 SUCCESS,
-                MAX_DURATION);
+                MAX_DURATION
+        );
     }
 
     @Extension

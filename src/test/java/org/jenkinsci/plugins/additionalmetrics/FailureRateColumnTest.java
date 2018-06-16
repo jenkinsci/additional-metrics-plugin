@@ -25,6 +25,7 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -37,10 +38,16 @@ public class FailureRateColumnTest {
     @ClassRule
     public static JenkinsRule jenkinsRule = new JenkinsRule();
 
+    private FailureRateColumn failureRateColumn;
+
+    @Before
+    public void before() {
+        failureRateColumn = new FailureRateColumn();
+    }
+
     @Test
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
-        FailureRateColumn failureRateColumn = new FailureRateColumn();
 
         Rate failureRate = failureRateColumn.getFailureRate(project);
 
@@ -55,8 +62,6 @@ public class FailureRateColumnTest {
         project.setDefinition(successDefinition());
         project.scheduleBuild2(0).get();
 
-        FailureRateColumn failureRateColumn = new FailureRateColumn();
-
         Rate failureRate = failureRateColumn.getFailureRate(project);
 
         assertEquals(0.5, failureRate.get(), 0);
@@ -67,11 +72,21 @@ public class FailureRateColumnTest {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
         project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
-        FailureRateColumn failureRateColumn = new FailureRateColumn();
 
         Rate failureRate = failureRateColumn.getFailureRate(project);
 
         assertNull(failureRate);
+    }
+
+    @Test
+    public void unstable_run_are_considered_failures() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableBuild");
+        project.setDefinition(unstableDefinition());
+        project.scheduleBuild2(0).get();
+
+        Rate failureRate = failureRateColumn.getFailureRate(project);
+
+        assertEquals(1, failureRate.get(), 0);
     }
 
 }

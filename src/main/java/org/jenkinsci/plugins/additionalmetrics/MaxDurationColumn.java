@@ -49,7 +49,8 @@ public class MaxDurationColumn extends ListViewColumn {
         return findRun(
                 job.getBuilds(),
                 Predicates.<Run<?, ?>>alwaysTrue(),
-                MAX_DURATION);
+                MAX_DURATION
+        );
     }
 
     @Extension

@@ -49,7 +49,8 @@ public class MinDurationColumn extends ListViewColumn {
         return findRun(
                 job.getBuilds(),
                 Predicates.<Run<?, ?>>alwaysTrue(),
-                MIN_DURATION);
+                MIN_DURATION
+        );
     }
 
     @Extension
