@@ -24,6 +24,7 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import com.google.common.base.Predicates;
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
@@ -34,26 +35,25 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.MAX_DURATION;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.MIN_DURATION;
 import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
 
-public class MaxSuccessDurationColumn extends ListViewColumn {
+public class MinDurationColumn extends ListViewColumn {
 
     @DataBoundConstructor
-    public MaxSuccessDurationColumn() {
+    public MinDurationColumn() {
         super();
     }
 
-    public Run<?, ?> getLongestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
+    public Run<?, ?> getLongestRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),
-                SUCCESS,
-                MAX_DURATION);
+                Predicates.<Run<?, ?>>alwaysTrue(),
+                MIN_DURATION);
     }
 
     @Extension
-    @Symbol("maxSuccessDuration")
+    @Symbol("minDuration")
     public static class DescriptorImpl extends ListViewColumnDescriptor {
 
         @Override
@@ -64,7 +64,7 @@ public class MaxSuccessDurationColumn extends ListViewColumn {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return Messages.MaxSuccessDuration_DisplayName();
+            return Messages.MinDuration_DisplayName();
         }
 
     }

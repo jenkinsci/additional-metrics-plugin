@@ -24,49 +24,26 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import hudson.Extension;
-import hudson.model.Job;
-import hudson.model.Run;
+import com.gargoylesoftware.htmlunit.html.DomElement;
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import hudson.model.ListView;
 import hudson.views.ListViewColumn;
-import hudson.views.ListViewColumnDescriptor;
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.DataBoundConstructor;
 
-import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
 
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.MAX_DURATION;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
-
-public class MaxSuccessDurationColumn extends ListViewColumn {
-
-    @DataBoundConstructor
-    public MaxSuccessDurationColumn() {
-        super();
-    }
-
-    public Run<?, ?> getLongestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
-        return findRun(
-                job.getBuilds(),
-                SUCCESS,
-                MAX_DURATION);
-    }
-
-    @Extension
-    @Symbol("maxSuccessDuration")
-    public static class DescriptorImpl extends ListViewColumnDescriptor {
-
-        @Override
-        public boolean shownByDefault() {
-            return false;
+class UIHelpers {
+    static String getListViewCellValue(HtmlPage page, ListView view, String jobName, String fieldName) {
+        int i = 0;
+        Map<String, Integer> textToIndex = new HashMap<>();
+        for (ListViewColumn column : view.getColumns()) {
+            textToIndex.put(column.getColumnCaption(), i++);
         }
 
-        @Nonnull
-        @Override
-        public String getDisplayName() {
-            return Messages.MaxSuccessDuration_DisplayName();
-        }
+        DomElement tr = page.getElementById("job_" + jobName);
+        DomNode td = tr.getChildNodes().get(textToIndex.get(fieldName));
 
+        return td.asText();
     }
-
 }

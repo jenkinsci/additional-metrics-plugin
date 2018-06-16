@@ -24,49 +24,43 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import hudson.Extension;
-import hudson.model.Job;
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import hudson.model.Run;
-import hudson.views.ListViewColumn;
-import hudson.views.ListViewColumnDescriptor;
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.DataBoundConstructor;
 
-import javax.annotation.Nonnull;
+import javax.annotation.CheckForNull;
 
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.MAX_DURATION;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
 
-public class MaxSuccessDurationColumn extends ListViewColumn {
+class Utils {
 
-    @DataBoundConstructor
-    public MaxSuccessDurationColumn() {
-        super();
-    }
+    @CheckForNull
+    static Rate rateOf(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> predicate) {
+        int totalRuns = 0;
+        int predicateApplicableRuns = 0;
 
-    public Run<?, ?> getLongestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
-        return findRun(
-                job.getBuilds(),
-                SUCCESS,
-                MAX_DURATION);
-    }
-
-    @Extension
-    @Symbol("maxSuccessDuration")
-    public static class DescriptorImpl extends ListViewColumnDescriptor {
-
-        @Override
-        public boolean shownByDefault() {
-            return false;
+        for (Run<?, ?> run : runs) {
+            totalRuns++;
+            if (predicate.apply(run)) {
+                predicateApplicableRuns++;
+            }
         }
 
-        @Nonnull
-        @Override
-        public String getDisplayName() {
-            return Messages.MaxSuccessDuration_DisplayName();
+        if (totalRuns == 0) {
+            return null;
+        } else {
+            return new Rate((double) predicateApplicableRuns / totalRuns);
         }
-
     }
 
+    @CheckForNull
+    static Run<?, ?> findRun(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> predicate, Function<Iterable<? extends Run<?, ?>>, Run<?, ?>> orderingFunction) {
+        Iterable<? extends Run<?, ?>> filteredRuns = Iterables.filter(runs, predicate);
+
+        if (Iterables.isEmpty(filteredRuns)) {
+            return null;
+        }
+
+        return orderingFunction.apply(filteredRuns);
+    }
 }

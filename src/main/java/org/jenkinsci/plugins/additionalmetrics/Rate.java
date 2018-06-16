@@ -43,4 +43,8 @@ public class Rate {
         return (formatter.format(rate * 100) + "%");
     }
 
+    @Override
+    public String toString() {
+        return "Rate[" + rate + "]";
+    }
 }

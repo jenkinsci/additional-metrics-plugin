@@ -24,12 +24,12 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import hudson.model.FreeStyleProject;
-import hudson.tasks.Shell;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.failingDefinition;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -39,7 +39,7 @@ public class SuccessTimeRateColumnTest {
 
     @Test
     public void no_runs_should_return_no_data() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithZeroBuilds");
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
         SuccessTimeRateColumn successTimeRateColumn = new SuccessTimeRateColumn();
 
         Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
@@ -49,8 +49,8 @@ public class SuccessTimeRateColumnTest {
 
     @Test
     public void one_failed_job_success_time_rate_should_be_100_percent() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithOneFailure");
-        project.getBuildersList().add(new Shell("ech syntax error"));
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailure");
+        project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
 
         SuccessTimeRateColumn successTimeRateColumn = new SuccessTimeRateColumn();

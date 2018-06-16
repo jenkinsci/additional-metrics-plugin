@@ -37,6 +37,14 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class RateStringParameterizedTest {
 
+    private double input;
+    private String expected;
+
+    public RateStringParameterizedTest(double input, String expected) {
+        this.input = input;
+        this.expected = expected;
+    }
+
     @Parameters(name = "{index}: rate[{0}]={1}")
     public static Iterable<Object[]> data() {
         return Arrays.asList(
@@ -48,14 +56,6 @@ public class RateStringParameterizedTest {
                         {1, "100.00%"}
                 }
         );
-    }
-
-    private double input;
-    private String expected;
-
-    public RateStringParameterizedTest(double input, String expected) {
-        this.input = input;
-        this.expected = expected;
     }
 
     @Test

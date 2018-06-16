@@ -24,49 +24,27 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import hudson.Extension;
-import hudson.model.Job;
-import hudson.model.Run;
-import hudson.views.ListViewColumn;
-import hudson.views.ListViewColumnDescriptor;
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.DataBoundConstructor;
+import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 
-import javax.annotation.Nonnull;
+class PipelineDefinitions {
 
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.MAX_DURATION;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
-
-public class MaxSuccessDurationColumn extends ListViewColumn {
-
-    @DataBoundConstructor
-    public MaxSuccessDurationColumn() {
-        super();
+    private PipelineDefinitions() {
+        // test utility class
     }
 
-    public Run<?, ?> getLongestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
-        return findRun(
-                job.getBuilds(),
-                SUCCESS,
-                MAX_DURATION);
+    static CpsFlowDefinition failingDefinition() {
+        return new CpsFlowDefinition("node { ech }", true);
     }
 
-    @Extension
-    @Symbol("maxSuccessDuration")
-    public static class DescriptorImpl extends ListViewColumnDescriptor {
-
-        @Override
-        public boolean shownByDefault() {
-            return false;
-        }
-
-        @Nonnull
-        @Override
-        public String getDisplayName() {
-            return Messages.MaxSuccessDuration_DisplayName();
-        }
-
+    static CpsFlowDefinition successDefinition() {
+        return new CpsFlowDefinition("node { echo 'Hello, World!' }", true);
     }
 
+    static CpsFlowDefinition sleepDefinition(int seconds) {
+        return new CpsFlowDefinition("node { sleep " + seconds + " }", true);
+    }
+
+    static CpsFlowDefinition slowDefinition() {
+        return sleepDefinition(60);
+    }
 }

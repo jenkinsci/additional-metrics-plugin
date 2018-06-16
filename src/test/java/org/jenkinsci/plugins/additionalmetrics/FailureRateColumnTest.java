@@ -24,15 +24,14 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import hudson.model.FreeStyleProject;
-import hudson.tasks.Shell;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-
 
 public class FailureRateColumnTest {
     @ClassRule
@@ -40,7 +39,7 @@ public class FailureRateColumnTest {
 
     @Test
     public void no_runs_should_return_no_data() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithZeroBuilds");
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
         FailureRateColumn failureRateColumn = new FailureRateColumn();
 
         Rate failureRate = failureRateColumn.getFailureRate(project);
@@ -50,10 +49,10 @@ public class FailureRateColumnTest {
 
     @Test
     public void one_failed_job_over_two_failure_rate_should_be_50_percent() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithOneOverTwoSuccess");
-        project.getBuildersList().add(new Shell("ech syntax error"));
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneOverTwoSuccess");
+        project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
-        project.getBuildersList().replace(new Shell("echo not anymore"));
+        project.setDefinition(successDefinition());
         project.scheduleBuild2(0).get();
 
         FailureRateColumn failureRateColumn = new FailureRateColumn();
@@ -65,8 +64,8 @@ public class FailureRateColumnTest {
 
     @Test
     public void building_runs_should_be_excluded() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithOneBuildingBuild");
-        project.getBuildersList().add(new Shell("sleep 60"));
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
+        project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
         FailureRateColumn failureRateColumn = new FailureRateColumn();
 

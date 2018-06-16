@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.additionalmetrics;
 
 import hudson.Extension;
 import hudson.model.Job;
-import hudson.model.Result;
 import hudson.model.Run;
 import hudson.views.ListViewColumn;
 import hudson.views.ListViewColumnDescriptor;
@@ -34,6 +33,8 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
+
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.NOT_SUCCESS;
 
 public class FailureRateColumn extends ListViewColumn {
 
@@ -43,21 +44,10 @@ public class FailureRateColumn extends ListViewColumn {
     }
 
     public Rate getFailureRate(Job<? extends Job, ? extends Run> job) {
-        int totalRuns = 0;
-        int failedRuns = 0;
-
-        for (Run<?, ?> run : job.getBuilds().completedOnly()) {
-            totalRuns++;
-            if (run.getResult() != Result.SUCCESS) {
-                failedRuns++;
-            }
-        }
-
-        if (totalRuns == 0) {
-            return null;
-        } else {
-            return new Rate((double) failedRuns / totalRuns);
-        }
+        return Utils.rateOf(
+                job.getBuilds().completedOnly(),
+                NOT_SUCCESS
+        );
     }
 
     @Extension

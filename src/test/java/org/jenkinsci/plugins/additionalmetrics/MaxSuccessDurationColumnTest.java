@@ -24,34 +24,34 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
-import hudson.model.FreeStyleBuild;
-import hudson.model.FreeStyleProject;
 import hudson.model.ListView;
 import hudson.model.Run;
-import hudson.tasks.Shell;
-import hudson.views.ListViewColumn;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.xml.sax.SAXException;
+import org.jvnet.hudson.test.JenkinsRule.WebClient;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCellValue;
 import static org.junit.Assert.*;
 
 public class MaxSuccessDurationColumnTest {
     @ClassRule
     public static JenkinsRule jenkinsRule = new JenkinsRule();
 
+    private MaxSuccessDurationColumn maxSuccessDurationColumn;
+
+    @Before
+    public void before() {
+        maxSuccessDurationColumn = new MaxSuccessDurationColumn();
+    }
+
     @Test
     public void no_runs_should_return_no_data() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithZeroBuilds");
-        MaxSuccessDurationColumn maxSuccessDurationColumn = new MaxSuccessDurationColumn();
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
         Run<?, ?> longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
 
@@ -60,13 +60,12 @@ public class MaxSuccessDurationColumnTest {
 
     @Test
     public void two_successful_runs_should_return_the_longest() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithTwoSuccessfulBuilds");
-        project.getBuildersList().add(new Shell("sleep 1"));
-        FreeStyleBuild run1 = project.scheduleBuild2(0).get();
-        project.getBuildersList().replace(new Shell("sleep 3"));
-        FreeStyleBuild run2 = project.scheduleBuild2(0).get();
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
+        project.setDefinition(sleepDefinition(1));
+        project.scheduleBuild2(0).get();
+        project.setDefinition(sleepDefinition(3));
+        WorkflowRun run2 = project.scheduleBuild2(0).get();
 
-        MaxSuccessDurationColumn maxSuccessDurationColumn = new MaxSuccessDurationColumn();
         Run<?, ?> longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
 
         assertSame(run2, longestRun);
@@ -74,10 +73,9 @@ public class MaxSuccessDurationColumnTest {
 
     @Test
     public void failed_runs_should_be_excluded() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithOneFailedBuild");
-        project.getBuildersList().add(new Shell("ech syntax error"));
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailedBuild");
+        project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
-        MaxSuccessDurationColumn maxSuccessDurationColumn = new MaxSuccessDurationColumn();
 
         Run<?, ?> longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
 
@@ -86,10 +84,9 @@ public class MaxSuccessDurationColumnTest {
 
     @Test
     public void building_runs_should_be_excluded() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithOneBuildingBuild");
-        project.getBuildersList().add(new Shell("sleep 60"));
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
+        project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
-        MaxSuccessDurationColumn maxSuccessDurationColumn = new MaxSuccessDurationColumn();
 
         Run<?, ?> longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
 
@@ -98,8 +95,7 @@ public class MaxSuccessDurationColumnTest {
 
     @Test
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithZeroBuildsForUI");
-        MaxSuccessDurationColumn maxSuccessDurationColumn = new MaxSuccessDurationColumn();
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
         ListView myList = new ListView("MyListNoRuns", jenkinsRule.getInstance());
         myList.getColumns().add(maxSuccessDurationColumn);
@@ -107,17 +103,20 @@ public class MaxSuccessDurationColumnTest {
 
         jenkinsRule.getInstance().addView(myList);
 
-        String textOnUi = getCellValue(myList, project.getName(), maxSuccessDurationColumn.getColumnCaption());
+        String textOnUi;
+
+        try (WebClient webClient = jenkinsRule.createWebClient()) {
+            textOnUi = getListViewCellValue(webClient.getPage(myList), myList, project.getName(), maxSuccessDurationColumn.getColumnCaption());
+        }
 
         assertEquals("N/A", textOnUi);
     }
 
     @Test
     public void one_run_should_display_time_and_build_in_UI() throws Exception {
-        FreeStyleProject project = jenkinsRule.createFreeStyleProject("ProjectWithOneBuildForUI");
-        project.getBuildersList().add(new Shell("sleep 1"));
-        FreeStyleBuild run = project.scheduleBuild2(0).get();
-        MaxSuccessDurationColumn maxSuccessDurationColumn = new MaxSuccessDurationColumn();
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
+        project.setDefinition(sleepDefinition(1));
+        WorkflowRun run = project.scheduleBuild2(0).get();
 
         ListView myList = new ListView("MyListOneRun", jenkinsRule.getInstance());
         myList.getColumns().add(maxSuccessDurationColumn);
@@ -125,28 +124,14 @@ public class MaxSuccessDurationColumnTest {
 
         jenkinsRule.getInstance().addView(myList);
 
-        String textOnUi = getCellValue(myList, project.getName(), maxSuccessDurationColumn.getColumnCaption());
+        String textOnUi;
+        try (WebClient webClient = jenkinsRule.createWebClient()) {
+            textOnUi = getListViewCellValue(webClient.getPage(myList), myList, project.getName(), maxSuccessDurationColumn.getColumnCaption());
+        }
 
         // sample output: 1.1 sec - #1
         assertTrue(textOnUi.contains("sec"));
         assertTrue(textOnUi.contains("#" + run.getId()));
-    }
-
-    private String getCellValue(ListView view, String jobName, String fieldName) throws IOException, SAXException {
-        int i = 0;
-        Map<String, Integer> textToIndex = new HashMap<>();
-        for (ListViewColumn column : view.getColumns()) {
-            textToIndex.put(column.getColumnCaption(), i++);
-        }
-
-        try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            HtmlPage page = webClient.getPage(view);
-
-            DomElement tr = page.getElementById("job_" + jobName);
-            DomNode td = tr.getChildNodes().get(textToIndex.get(fieldName));
-
-            return td.asText();
-        }
     }
 
 }
