@@ -35,32 +35,35 @@ import javax.annotation.CheckForNull;
 class Utils {
 
     @CheckForNull
-    static Rate rateOf(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> predicate) {
-        int totalRuns = 0;
-        int predicateApplicableRuns = 0;
-
-        for (Run<?, ?> run : runs) {
-            totalRuns++;
-            if (predicate.apply(run)) {
-                predicateApplicableRuns++;
-            }
-        }
-
-        if (totalRuns == 0) {
-            return null;
-        } else {
-            return new Rate((double) predicateApplicableRuns / totalRuns);
-        }
-    }
-
-    @CheckForNull
-    static Run<?, ?> findRun(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> predicate, Function<Iterable<? extends Run<?, ?>>, Run<?, ?>> orderingFunction) {
-        Iterable<? extends Run<?, ?>> filteredRuns = Iterables.filter(runs, predicate);
+    static Rate rateOf(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> preFilter, Predicate<Run<?, ?>> predicateRate) {
+        Iterable<? extends Run<?, ?>> filteredRuns = Iterables.filter(runs, preFilter);
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
         }
 
-        return orderingFunction.apply(filteredRuns);
+        int totalRuns = 0;
+        int predicateApplicableRuns = 0;
+
+        for (Run<?, ?> run : filteredRuns) {
+            totalRuns++;
+            if (predicateRate.apply(run)) {
+                predicateApplicableRuns++;
+            }
+        }
+
+        return new Rate((double) predicateApplicableRuns / totalRuns);
     }
+
+    @CheckForNull
+    static Run<?, ?> findRun(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> preFilter, Function<Iterable<? extends Run<?, ?>>, Run<?, ?>> searchFunction) {
+        Iterable<? extends Run<?, ?>> filteredRuns = Iterables.filter(runs, preFilter);
+
+        if (Iterables.isEmpty(filteredRuns)) {
+            return null;
+        }
+
+        return searchFunction.apply(filteredRuns);
+    }
+
 }

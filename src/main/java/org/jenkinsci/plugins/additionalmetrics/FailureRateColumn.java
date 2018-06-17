@@ -34,6 +34,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.NOT_SUCCESS;
 
 public class FailureRateColumn extends ListViewColumn {
@@ -45,7 +46,8 @@ public class FailureRateColumn extends ListViewColumn {
 
     public Rate getFailureRate(Job<? extends Job, ? extends Run> job) {
         return Utils.rateOf(
-                job.getBuilds().completedOnly(),
+                job.getBuilds(),
+                COMPLETED,
                 NOT_SUCCESS
         );
     }

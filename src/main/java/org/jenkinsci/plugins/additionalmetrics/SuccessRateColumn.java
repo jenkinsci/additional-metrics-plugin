@@ -34,6 +34,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
 
 public class SuccessRateColumn extends ListViewColumn {
@@ -45,7 +46,8 @@ public class SuccessRateColumn extends ListViewColumn {
 
     public Rate getSuccessRate(Job<? extends Job, ? extends Run> job) {
         return Utils.rateOf(
-                job.getBuilds().completedOnly(),
+                job.getBuilds(),
+                COMPLETED,
                 SUCCESS
         );
     }

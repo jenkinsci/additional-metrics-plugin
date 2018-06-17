@@ -39,6 +39,7 @@ class Helpers {
     static final Function<Iterable<? extends Run<?, ?>>, Run<?, ?>> MAX_DURATION = new MaxDuration();
     static final Predicate<Run<?, ?>> SUCCESS = new ResultPredicate(Result.SUCCESS);
     static final Predicate<Run<?, ?>> NOT_SUCCESS = Predicates.not(SUCCESS);
+    static final Predicate<Run<?, ?>> COMPLETED = new CompletedPredicate();
 
     private static final Ordering<Run<?, ?>> DURATION_ORDERING = new DurationOrdering();
 
@@ -76,4 +77,10 @@ class Helpers {
         }
     }
 
+    private static class CompletedPredicate implements Predicate<Run<?, ?>> {
+        @Override
+        public boolean apply(Run<?, ?> input) {
+            return !input.isBuilding();
+        }
+    }
 }
