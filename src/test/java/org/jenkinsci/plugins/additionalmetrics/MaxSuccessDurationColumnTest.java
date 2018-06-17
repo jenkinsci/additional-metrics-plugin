@@ -35,12 +35,13 @@ import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
 
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCellValue;
 import static org.junit.Assert.*;
 
 public class MaxSuccessDurationColumnTest {
     @ClassRule
-    public static JenkinsRule jenkinsRule = new JenkinsRule();
+    public static final JenkinsRule jenkinsRule = new JenkinsRule();
 
     private MaxSuccessDurationColumn maxSuccessDurationColumn;
 
@@ -97,16 +98,11 @@ public class MaxSuccessDurationColumnTest {
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView myList = new ListView("MyListNoRuns", jenkinsRule.getInstance());
-        myList.getColumns().add(maxSuccessDurationColumn);
-        myList.add(project);
-
-        jenkinsRule.getInstance().addView(myList);
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", maxSuccessDurationColumn, project);
 
         String textOnUi;
-
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            textOnUi = getListViewCellValue(webClient.getPage(myList), myList, project.getName(), maxSuccessDurationColumn.getColumnCaption());
+            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), maxSuccessDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", textOnUi);
@@ -118,15 +114,11 @@ public class MaxSuccessDurationColumnTest {
         project.setDefinition(sleepDefinition(1));
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        ListView myList = new ListView("MyListOneRun", jenkinsRule.getInstance());
-        myList.getColumns().add(maxSuccessDurationColumn);
-        myList.add(project);
-
-        jenkinsRule.getInstance().addView(myList);
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", maxSuccessDurationColumn, project);
 
         String textOnUi;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            textOnUi = getListViewCellValue(webClient.getPage(myList), myList, project.getName(), maxSuccessDurationColumn.getColumnCaption());
+            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), maxSuccessDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec - #1

@@ -28,8 +28,11 @@ import com.gargoylesoftware.htmlunit.html.DomElement;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import hudson.model.ListView;
+import hudson.model.TopLevelItem;
 import hudson.views.ListViewColumn;
+import jenkins.model.Jenkins;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,5 +48,15 @@ class UIHelpers {
         DomNode td = tr.getChildNodes().get(textToIndex.get(fieldName));
 
         return td.asText();
+    }
+
+    static ListView createAndAddListView(Jenkins instance, String listName, ListViewColumn column, TopLevelItem job) throws IOException {
+        ListView listView = new ListView(listName, instance);
+        listView.getColumns().add(column);
+        listView.add(job);
+
+        instance.addView(listView);
+
+        return listView;
     }
 }

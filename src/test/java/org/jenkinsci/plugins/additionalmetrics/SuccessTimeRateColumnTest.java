@@ -36,7 +36,7 @@ import static org.junit.Assert.*;
 
 public class SuccessTimeRateColumnTest {
     @ClassRule
-    public static JenkinsRule jenkinsRule = new JenkinsRule();
+    public static final JenkinsRule jenkinsRule = new JenkinsRule();
 
     private SuccessTimeRateColumn successTimeRateColumn;
 

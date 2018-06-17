@@ -24,6 +24,7 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import hudson.model.ListView;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -31,12 +32,13 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCellValue;
+import static org.junit.Assert.*;
 
 public class FailureRateColumnTest {
     @ClassRule
-    public static JenkinsRule jenkinsRule = new JenkinsRule();
+    public static final JenkinsRule jenkinsRule = new JenkinsRule();
 
     private FailureRateColumn failureRateColumn;
 
@@ -87,6 +89,37 @@ public class FailureRateColumnTest {
         Rate failureRate = failureRateColumn.getFailureRate(project);
 
         assertEquals(1, failureRate.get(), 0);
+    }
+
+    @Test
+    public void no_runs_should_display_as_NA_in_UI() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
+
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", failureRateColumn, project);
+
+        String textOnUi;
+        try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
+            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), failureRateColumn.getColumnCaption());
+        }
+
+        assertEquals("N/A", textOnUi);
+    }
+
+    @Test
+    public void one_run_should_display_time_and_build_in_UI() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
+        project.setDefinition(sleepDefinition(1));
+        project.scheduleBuild2(0).get();
+
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", failureRateColumn, project);
+
+        String textOnUi;
+        try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
+            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), failureRateColumn.getColumnCaption());
+        }
+
+        // sample output: 0.00%
+        assertTrue(textOnUi.contains("%"));
     }
 
 }
