@@ -55,6 +55,33 @@ class Utils {
         return new Rate((double) predicateApplicableRuns / totalRuns);
     }
 
+    static Rate timeRateOf(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> preFilter, Predicate<Run<?, ?>> predicateRate) {
+        Iterable<? extends Run<?, ?>> filteredRuns = Iterables.filter(runs, preFilter);
+
+        if (Iterables.isEmpty(filteredRuns)) {
+            return null;
+        }
+
+        Run firstRun = Iterables.getLast(filteredRuns, null);
+        long startTime = firstRun.getStartTimeInMillis();
+        long endTime = System.currentTimeMillis();
+
+        long previousTime = endTime;
+        long accumulatedPredicateTime = 0L;
+
+        for (Run<?, ?> run : filteredRuns) {
+            long runStartTime = run.getStartTimeInMillis();
+
+            if (predicateRate.apply(run)) {
+                accumulatedPredicateTime += previousTime - runStartTime;
+            }
+
+            previousTime = runStartTime;
+        }
+
+        return new Rate((double) accumulatedPredicateTime / (endTime - startTime));
+    }
+
     @CheckForNull
     static Run<?, ?> findRun(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> preFilter, Function<Iterable<? extends Run<?, ?>>, Run<?, ?>> searchFunction) {
         Iterable<? extends Run<?, ?>> filteredRuns = Iterables.filter(runs, preFilter);

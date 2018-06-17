@@ -35,26 +35,26 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.NOT_SUCCESS;
 import static org.jenkinsci.plugins.additionalmetrics.Utils.timeRateOf;
 
-public class SuccessTimeRateColumn extends ListViewColumn {
+public class FailureTimeRateColumn extends ListViewColumn {
 
     @DataBoundConstructor
-    public SuccessTimeRateColumn() {
+    public FailureTimeRateColumn() {
         super();
     }
 
-    public Rate getSuccessTimeRate(Job<? extends Job, ? extends Run> job) {
+    public Rate getFailureTimeRate(Job<? extends Job, ? extends Run> job) {
         return timeRateOf(
                 job.getBuilds(),
                 Predicates.<Run<?, ?>>alwaysTrue(),
-                SUCCESS
+                NOT_SUCCESS
         );
     }
 
     @Extension
-    @Symbol("successTimeRate")
+    @Symbol("failureTimeRate")
     public static class DescriptorImpl extends ListViewColumnDescriptor {
 
         @Override
@@ -65,7 +65,7 @@ public class SuccessTimeRateColumn extends ListViewColumn {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return Messages.SuccessTimeRateColumn_DisplayName();
+            return Messages.FailureTimeRateColumn_DisplayName();
         }
 
     }

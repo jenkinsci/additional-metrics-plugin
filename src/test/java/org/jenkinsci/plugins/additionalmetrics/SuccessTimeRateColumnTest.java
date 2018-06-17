@@ -25,22 +25,29 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.failingDefinition;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.successDefinition;
+import static org.junit.Assert.*;
 
 public class SuccessTimeRateColumnTest {
     @ClassRule
     public static JenkinsRule jenkinsRule = new JenkinsRule();
 
+    private SuccessTimeRateColumn successTimeRateColumn;
+
+    @Before
+    public void before() {
+        successTimeRateColumn = new SuccessTimeRateColumn();
+    }
+
     @Test
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
-        SuccessTimeRateColumn successTimeRateColumn = new SuccessTimeRateColumn();
 
         Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
 
@@ -48,16 +55,39 @@ public class SuccessTimeRateColumnTest {
     }
 
     @Test
-    public void one_failed_job_success_time_rate_should_be_100_percent() throws Exception {
+    public void one_failed_run_success_time_rate_should_be_100_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailure");
         project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
 
-        SuccessTimeRateColumn successTimeRateColumn = new SuccessTimeRateColumn();
+        Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
+
+        assertEquals(0, successTimeRate.get(), 0);
+    }
+
+    @Test
+    public void two_failed_runs_success_time_rate_should_be_100_percent() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoFailures");
+        project.setDefinition(failingDefinition());
+        project.scheduleBuild2(0).get();
+        project.scheduleBuild2(0).get();
 
         Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
 
         assertEquals(0, successTimeRate.get(), 0);
+    }
+
+    @Test
+    public void one_failed_runs_followed_by_one_success_run() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithFailureThenSuccess");
+        project.setDefinition(failingDefinition());
+        project.scheduleBuild2(0).get();
+        project.setDefinition(successDefinition());
+        project.scheduleBuild2(0).get();
+
+        Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
+
+        assertTrue(successTimeRate.get() > 0 && successTimeRate.get() < 1);
     }
 
 }
