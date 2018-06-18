@@ -24,7 +24,6 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import com.google.common.base.Predicates;
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
@@ -35,6 +34,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
 import static org.jenkinsci.plugins.additionalmetrics.Utils.timeRateOf;
 
@@ -48,7 +48,7 @@ public class SuccessTimeRateColumn extends ListViewColumn {
     public Rate getSuccessTimeRate(Job<? extends Job, ? extends Run> job) {
         return timeRateOf(
                 job.getBuilds(),
-                Predicates.<Run<?, ?>>alwaysTrue(),
+                COMPLETED,
                 SUCCESS
         );
     }

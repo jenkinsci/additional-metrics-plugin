@@ -24,7 +24,6 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import com.google.common.base.Predicates;
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
@@ -35,6 +34,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.MAX_DURATION;
 import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
 
@@ -48,7 +48,7 @@ public class MaxDurationColumn extends ListViewColumn {
     public Run<?, ?> getLongestRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),
-                Predicates.<Run<?, ?>>alwaysTrue(),
+                COMPLETED,
                 MAX_DURATION
         );
     }

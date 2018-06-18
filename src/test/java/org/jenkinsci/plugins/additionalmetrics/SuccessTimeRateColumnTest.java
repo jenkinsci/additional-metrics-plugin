@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.failingDefinition;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.slowDefinition;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.successDefinition;
 import static org.junit.Assert.*;
 
@@ -88,6 +89,17 @@ public class SuccessTimeRateColumnTest {
         Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
 
         assertTrue(successTimeRate.get() > 0 && successTimeRate.get() < 1);
+    }
+
+    @Test
+    public void building_runs_should_be_excluded() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
+        project.setDefinition(slowDefinition());
+        project.scheduleBuild2(0).waitForStart();
+
+        Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
+
+        assertNull(successTimeRate);
     }
 
 }

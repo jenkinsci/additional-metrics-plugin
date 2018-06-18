@@ -39,22 +39,22 @@ import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddList
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCellValue;
 import static org.junit.Assert.*;
 
-public class MaxSuccessDurationColumnTest {
+public class MaxDurationColumnTest {
     @ClassRule
     public static final JenkinsRule jenkinsRule = new JenkinsRule();
 
-    private MaxSuccessDurationColumn maxSuccessDurationColumn;
+    private MaxDurationColumn maxDurationColumn;
 
     @Before
     public void before() {
-        maxSuccessDurationColumn = new MaxSuccessDurationColumn();
+        maxDurationColumn = new MaxDurationColumn();
     }
 
     @Test
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
-        Run<?, ?> longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
+        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
 
         assertNull(longestRun);
     }
@@ -67,31 +67,44 @@ public class MaxSuccessDurationColumnTest {
         project.setDefinition(sleepDefinition(3));
         WorkflowRun run2 = project.scheduleBuild2(0).get();
 
-        Run<?, ?> longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
+        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
 
         assertSame(run2, longestRun);
     }
 
     @Test
-    public void failed_runs_should_be_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailedBuild");
-        project.setDefinition(failingDefinition());
+    public void two_runs_including_one_failure_should_return_the_longest() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoBuildsOneFailure");
+        project.setDefinition(sleepDefinition(1));
         project.scheduleBuild2(0).get();
+        project.setDefinition(sleepThenFailDefinition(3));
+        WorkflowRun run2 = project.scheduleBuild2(0).get();
 
-        Run<?, ?> longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
+        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
 
-        assertNull(longestRun);
+        assertSame(run2, longestRun);
     }
 
     @Test
-    public void unstable_runs_should_be_excluded() throws Exception {
+    public void failed_runs_are_not_excluded() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailedBuild");
+        project.setDefinition(failingDefinition());
+        WorkflowRun run = project.scheduleBuild2(0).get();
+
+        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
+
+        assertSame(run, longestRun);
+    }
+
+    @Test
+    public void unstable_runs_are_not_excluded() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableBuild");
         project.setDefinition(unstableDefinition());
-        project.scheduleBuild2(0).get();
+        WorkflowRun run = project.scheduleBuild2(0).get();
 
-        Run<?, ?> longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
+        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
 
-        assertNull(longestRun);
+        assertSame(run, longestRun);
     }
 
     @Test
@@ -100,7 +113,7 @@ public class MaxSuccessDurationColumnTest {
         project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
 
-        Run<?, ?> longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
+        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
 
         assertNull(longestRun);
     }
@@ -109,11 +122,11 @@ public class MaxSuccessDurationColumnTest {
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", maxSuccessDurationColumn, project);
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", maxDurationColumn, project);
 
         String textOnUi;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), maxSuccessDurationColumn.getColumnCaption());
+            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), maxDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", textOnUi);
@@ -125,11 +138,11 @@ public class MaxSuccessDurationColumnTest {
         project.setDefinition(sleepDefinition(1));
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", maxSuccessDurationColumn, project);
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", maxDurationColumn, project);
 
         String textOnUi;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), maxSuccessDurationColumn.getColumnCaption());
+            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), maxDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec - #1

@@ -48,6 +48,10 @@ class PipelineDefinitions {
         return new CpsFlowDefinition("node { sleep " + seconds + " }", true);
     }
 
+    static CpsFlowDefinition sleepThenFailDefinition(int seconds) {
+        return new CpsFlowDefinition("node { sleep " + seconds + "; ech }", true);
+    }
+
     static CpsFlowDefinition slowDefinition() {
         return sleepDefinition(60);
     }

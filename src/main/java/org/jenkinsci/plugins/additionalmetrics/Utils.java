@@ -55,6 +55,7 @@ class Utils {
         return new Rate((double) predicateApplicableRuns / totalRuns);
     }
 
+    @CheckForNull
     static Rate timeRateOf(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> preFilter, Predicate<Run<?, ?>> predicateRate) {
         Iterable<? extends Run<?, ?>> filteredRuns = Iterables.filter(runs, preFilter);
 

@@ -24,7 +24,6 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import com.google.common.base.Predicates;
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
@@ -35,6 +34,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.MIN_DURATION;
 import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
 
@@ -45,10 +45,10 @@ public class MinDurationColumn extends ListViewColumn {
         super();
     }
 
-    public Run<?, ?> getLongestRun(Job<? extends Job, ? extends Run> job) {
+    public Run<?, ?> getShortestRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),
-                Predicates.<Run<?, ?>>alwaysTrue(),
+                COMPLETED,
                 MIN_DURATION
         );
     }
