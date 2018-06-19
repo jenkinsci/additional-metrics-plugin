@@ -36,6 +36,7 @@ import javax.annotation.Nonnull;
 
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.NOT_SUCCESS;
+import static org.jenkinsci.plugins.additionalmetrics.Utils.rateOf;
 
 public class FailureRateColumn extends ListViewColumn {
 
@@ -45,7 +46,7 @@ public class FailureRateColumn extends ListViewColumn {
     }
 
     public Rate getFailureRate(Job<? extends Job, ? extends Run> job) {
-        return Utils.rateOf(
+        return rateOf(
                 job.getBuilds(),
                 COMPLETED,
                 NOT_SUCCESS
