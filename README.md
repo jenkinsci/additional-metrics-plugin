@@ -1,14 +1,19 @@
-Jenkins Additional Metrics Plugin
-=================================
+Additional Metrics Plugin
+=========================
 
-Provides additional metrics via columns in Jenkins' list view:
-- Minimum Build time for successful builds
-- Maximum Build time for successful builds
-- Success rate
-    - The rate of successful builds over all the available builds 
-- Failure rate
-    - The rate of unsuccessful builds over all the available builds 
-- Success time rate (aka Uptime)
-    - The rate of the time the build stayed successful, over the total time (time between the first build and now)
-- Failure time rate (aka Downtime)
-    - The rate of the time the build stayed unsuccessful, over the total time (time between the first build and now)
+Provides additional metrics via columns in Jenkins' List View.
+
+### Provided Metrics
+- Minimum and Maximum Build time for all, or only successful builds.
+- Success and Failure rates.
+- Success and Failure time rates (ie Uptime and Downtime).
+
+### Requirements
+Jenkins 1.651.3 or later.
+
+### Building
+```
+mvn package
+```
+
+Snapshot builds are available [here](https://ci.jenkins.io/blue/organizations/jenkins/Plugins%2Fadditional-metrics-plugin/branches/).
