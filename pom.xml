@@ -44,8 +44,8 @@
     <packaging>hpi</packaging>
 
     <name>Additional Metrics Plugin</name>
-    <description>Provides additional metrics for List Views: Failure/Success Rates, Min/Max durations, Success Time
-        Rate.
+    <description>Provides additional metrics for List Views: Success/Failure Rates, Min/Max durations, Success/Failure
+        Time Rates.
     </description>
     <url>https://wiki.jenkins-ci.org/display/JENKINS/Additional+Metrics+Plugin</url>
 
@@ -60,7 +60,7 @@
         <developer>
             <id>chadiem</id>
             <name>Chadi El Masri</name>
-            <email>chadi.masri@live.com</email>
+            <email>chadimsr@gmail.com</email>
         </developer>
     </developers>
 
