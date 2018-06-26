@@ -25,7 +25,7 @@
 
 <j:jelly xmlns:j="jelly:core">
     <j:set var="successTimeRate" value="${it.getSuccessTimeRate(job)}"/>
-    <td data="${successTimeRate.rate ?: '0'}">
+    <td data="${successTimeRate.asDouble ?: '0.0'}">
         <j:choose>
             <j:when test="${successTimeRate!=null}">
                 ${successTimeRate.asString}

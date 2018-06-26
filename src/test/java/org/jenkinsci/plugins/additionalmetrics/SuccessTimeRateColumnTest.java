@@ -24,6 +24,8 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import hudson.model.ListView;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -33,6 +35,8 @@ import org.jvnet.hudson.test.JenkinsRule;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.failingDefinition;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.slowDefinition;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.successDefinition;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
 import static org.junit.Assert.*;
 
 public class SuccessTimeRateColumnTest {
@@ -56,18 +60,18 @@ public class SuccessTimeRateColumnTest {
     }
 
     @Test
-    public void one_failed_run_success_time_rate_should_be_100_percent() throws Exception {
+    public void one_failed_run_success_time_rate_should_be_0_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailure");
         project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
 
         Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
 
-        assertEquals(0, successTimeRate.get(), 0);
+        assertEquals(0, successTimeRate.getAsDouble(), 0);
     }
 
     @Test
-    public void two_failed_runs_success_time_rate_should_be_100_percent() throws Exception {
+    public void two_failed_runs_success_time_rate_should_be_0_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoFailures");
         project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
@@ -75,11 +79,11 @@ public class SuccessTimeRateColumnTest {
 
         Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
 
-        assertEquals(0, successTimeRate.get(), 0);
+        assertEquals(0, successTimeRate.getAsDouble(), 0);
     }
 
     @Test
-    public void one_failed_runs_followed_by_one_success_run() throws Exception {
+    public void one_failed_run_followed_by_one_success_run() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithFailureThenSuccess");
         project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
@@ -88,7 +92,7 @@ public class SuccessTimeRateColumnTest {
 
         Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
 
-        assertTrue(successTimeRate.get() > 0 && successTimeRate.get() < 1);
+        assertTrue(successTimeRate.getAsDouble() > 0 && successTimeRate.getAsDouble() < 1);
     }
 
     @Test
@@ -100,6 +104,38 @@ public class SuccessTimeRateColumnTest {
         Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
 
         assertNull(successTimeRate);
+    }
+
+    @Test
+    public void no_runs_should_display_as_NA_in_UI() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
+
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", successTimeRateColumn, project);
+
+        DomNode columnNode;
+        try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), successTimeRateColumn.getColumnCaption());
+        }
+
+        assertEquals("N/A", columnNode.asText());
+        assertEquals("0.0", columnNode.getAttributes().getNamedItem("data").getNodeValue());
+    }
+
+    @Test
+    public void one_run_should_display_percentage_in_UI() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
+        project.setDefinition(successDefinition());
+        project.scheduleBuild2(0).get();
+
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", successTimeRateColumn, project);
+
+        DomNode columnNode;
+        try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), successTimeRateColumn.getColumnCaption());
+        }
+
+        assertEquals("100.00%", columnNode.asText());
+        assertEquals("1.0", columnNode.getAttributes().getNamedItem("data").getNodeValue());
     }
 
 }

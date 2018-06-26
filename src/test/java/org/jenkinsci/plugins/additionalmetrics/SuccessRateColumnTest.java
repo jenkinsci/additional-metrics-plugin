@@ -24,6 +24,7 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.Before;
@@ -33,6 +34,7 @@ import org.jvnet.hudson.test.JenkinsRule;
 
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCellValue;
 import static org.junit.Assert.*;
 
@@ -66,7 +68,7 @@ public class SuccessRateColumnTest {
 
         Rate successRate = successRateColumn.getSuccessRate(project);
 
-        assertEquals(0.5, successRate.get(), 0);
+        assertEquals(0.5, successRate.getAsDouble(), 0);
     }
 
     @Test
@@ -88,7 +90,7 @@ public class SuccessRateColumnTest {
 
         Rate successRate = successRateColumn.getSuccessRate(project);
 
-        assertEquals(0, successRate.get(), 0);
+        assertEquals(0, successRate.getAsDouble(), 0);
     }
 
     @Test
@@ -97,29 +99,30 @@ public class SuccessRateColumnTest {
 
         ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", successRateColumn, project);
 
-        String textOnUi;
+        DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), successRateColumn.getColumnCaption());
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), successRateColumn.getColumnCaption());
         }
 
-        assertEquals("N/A", textOnUi);
+        assertEquals("N/A", columnNode.asText());
+        assertEquals("0.0", columnNode.getAttributes().getNamedItem("data").getNodeValue());
     }
 
     @Test
-    public void one_run_should_display_time_and_build_in_UI() throws Exception {
+    public void one_run_should_display_percentage_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
-        project.setDefinition(sleepDefinition(1));
+        project.setDefinition(successDefinition());
         project.scheduleBuild2(0).get();
 
         ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", successRateColumn, project);
 
-        String textOnUi;
+        DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), successRateColumn.getColumnCaption());
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), successRateColumn.getColumnCaption());
         }
 
-        // sample output: 0.00%
-        assertTrue(textOnUi.contains("%"));
+        assertEquals("100.00%", columnNode.asText());
+        assertEquals("1.0", columnNode.getAttributes().getNamedItem("data").getNodeValue());
     }
 
 }

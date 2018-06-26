@@ -34,7 +34,7 @@ public class Rate {
         this.rate = rate;
     }
 
-    public double get() {
+    public double getAsDouble() {
         return rate;
     }
 

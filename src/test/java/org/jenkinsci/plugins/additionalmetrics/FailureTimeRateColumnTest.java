@@ -37,37 +37,60 @@ import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddList
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
 import static org.junit.Assert.*;
 
-public class FailureRateColumnTest {
+public class FailureTimeRateColumnTest {
     @ClassRule
     public static final JenkinsRule jenkinsRule = new JenkinsRule();
 
-    private FailureRateColumn failureRateColumn;
+    private FailureTimeRateColumn failureTimeRateColumn;
 
     @Before
     public void before() {
-        failureRateColumn = new FailureRateColumn();
+        failureTimeRateColumn = new FailureTimeRateColumn();
     }
 
     @Test
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
-        Rate failureRate = failureRateColumn.getFailureRate(project);
+        Rate failureTimeRate = failureTimeRateColumn.getFailureTimeRate(project);
 
-        assertNull(failureRate);
+        assertNull(failureTimeRate);
     }
 
     @Test
-    public void one_failed_job_over_two_failure_rate_should_be_50_percent() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneOverTwoSuccess");
-        project.setDefinition(failingDefinition());
-        project.scheduleBuild2(0).get();
+    public void one_success_run_failure_time_rate_should_be_0_percent() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneSuccess");
         project.setDefinition(successDefinition());
         project.scheduleBuild2(0).get();
 
-        Rate failureRate = failureRateColumn.getFailureRate(project);
+        Rate failureTimeRate = failureTimeRateColumn.getFailureTimeRate(project);
 
-        assertEquals(0.5, failureRate.getAsDouble(), 0);
+        assertEquals(0, failureTimeRate.getAsDouble(), 0);
+    }
+
+    @Test
+    public void two_success_runs_failure_time_rate_should_be_0_percent() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccess");
+        project.setDefinition(successDefinition());
+        project.scheduleBuild2(0).get();
+        project.scheduleBuild2(0).get();
+
+        Rate failureTimeRate = failureTimeRateColumn.getFailureTimeRate(project);
+
+        assertEquals(0, failureTimeRate.getAsDouble(), 0);
+    }
+
+    @Test
+    public void one_success_run_followed_by_one_failure_run() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithSuccessThenFailure");
+        project.setDefinition(successDefinition());
+        project.scheduleBuild2(0).get();
+        project.setDefinition(failingDefinition());
+        project.scheduleBuild2(0).get();
+
+        Rate failureTimeRate = failureTimeRateColumn.getFailureTimeRate(project);
+
+        assertTrue(failureTimeRate.getAsDouble() > 0 && failureTimeRate.getAsDouble() < 1);
     }
 
     @Test
@@ -76,31 +99,20 @@ public class FailureRateColumnTest {
         project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
 
-        Rate failureRate = failureRateColumn.getFailureRate(project);
+        Rate failureTimeRate = failureTimeRateColumn.getFailureTimeRate(project);
 
-        assertNull(failureRate);
-    }
-
-    @Test
-    public void unstable_run_are_considered_failures() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableBuild");
-        project.setDefinition(unstableDefinition());
-        project.scheduleBuild2(0).get();
-
-        Rate failureRate = failureRateColumn.getFailureRate(project);
-
-        assertEquals(1, failureRate.getAsDouble(), 0);
+        assertNull(failureTimeRate);
     }
 
     @Test
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", failureRateColumn, project);
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", failureTimeRateColumn, project);
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), failureRateColumn.getColumnCaption());
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), failureTimeRateColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asText());
@@ -113,11 +125,11 @@ public class FailureRateColumnTest {
         project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", failureRateColumn, project);
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", failureTimeRateColumn, project);
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), failureRateColumn.getColumnCaption());
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), failureTimeRateColumn.getColumnCaption());
         }
 
         assertEquals("100.00%", columnNode.asText());

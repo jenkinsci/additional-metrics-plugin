@@ -24,6 +24,7 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
 import hudson.model.Run;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
@@ -36,7 +37,7 @@ import org.jvnet.hudson.test.JenkinsRule.WebClient;
 
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCellValue;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
 import static org.junit.Assert.*;
 
 public class MinSuccessDurationColumnTest {
@@ -111,12 +112,13 @@ public class MinSuccessDurationColumnTest {
 
         ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", minSuccessDurationColumn, project);
 
-        String textOnUi;
+        DomNode columnNode;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), minSuccessDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), minSuccessDurationColumn.getColumnCaption());
         }
 
-        assertEquals("N/A", textOnUi);
+        assertEquals("N/A", columnNode.asText());
+        assertEquals("0", columnNode.getAttributes().getNamedItem("data").getNodeValue());
     }
 
     @Test
@@ -127,14 +129,17 @@ public class MinSuccessDurationColumnTest {
 
         ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", minSuccessDurationColumn, project);
 
-        String textOnUi;
+        DomNode columnNode;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            textOnUi = getListViewCellValue(webClient.getPage(listView), listView, project.getName(), minSuccessDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), minSuccessDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec - #1
-        assertTrue(textOnUi.contains("sec"));
-        assertTrue(textOnUi.contains("#" + run.getId()));
+        String text = columnNode.asText();
+        assertTrue(text.contains("sec"));
+        assertTrue(text.contains("#" + run.getId()));
+
+        assertTrue(Long.parseLong(columnNode.getAttributes().getNamedItem("data").getNodeValue()) > 0);
     }
 
 }

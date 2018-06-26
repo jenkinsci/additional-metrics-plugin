@@ -50,6 +50,19 @@ class UIHelpers {
         return td.asText();
     }
 
+    static DomNode getListViewCell(HtmlPage page, ListView view, String jobName, String fieldName) {
+        int i = 0;
+        Map<String, Integer> textToIndex = new HashMap<>();
+        for (ListViewColumn column : view.getColumns()) {
+            textToIndex.put(column.getColumnCaption(), i++);
+        }
+
+        DomElement tr = page.getElementById("job_" + jobName);
+        DomNode td = tr.getChildNodes().get(textToIndex.get(fieldName));
+
+        return td;
+    }
+
     static ListView createAndAddListView(Jenkins instance, String listName, ListViewColumn column, TopLevelItem job) throws IOException {
         ListView listView = new ListView(listName, instance);
         listView.getColumns().add(column);
