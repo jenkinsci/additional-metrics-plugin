@@ -24,50 +24,21 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import hudson.Extension;
-import hudson.model.Job;
-import hudson.model.Run;
-import hudson.views.ListViewColumn;
-import hudson.views.ListViewColumnDescriptor;
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.DataBoundConstructor;
+import hudson.Util;
 
-import javax.annotation.Nonnull;
+public class Duration {
+    private final long milliseconds;
 
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.MAX_DURATION;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
-
-public class MaxSuccessDurationColumn extends ListViewColumn {
-
-    @DataBoundConstructor
-    public MaxSuccessDurationColumn() {
-        super();
+    public Duration(long milliseconds) {
+        this.milliseconds = milliseconds;
     }
 
-    public Run getLongestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
-        return findRun(
-                job.getBuilds(),
-                SUCCESS,
-                MAX_DURATION
-        );
+    public long getAsLong() {
+        return milliseconds;
     }
 
-    @Extension
-    @Symbol("maxSuccessDuration")
-    public static class DescriptorImpl extends ListViewColumnDescriptor {
-
-        @Override
-        public boolean shownByDefault() {
-            return false;
-        }
-
-        @Nonnull
-        @Override
-        public String getDisplayName() {
-            return Messages.MaxSuccessDurationColumn_DisplayName();
-        }
-
+    public String getAsString() {
+        return Util.getTimeSpanString(milliseconds);
     }
 
 }

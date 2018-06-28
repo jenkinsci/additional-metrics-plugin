@@ -65,7 +65,7 @@ public class MinSuccessDurationColumn extends ListViewColumn {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return Messages.MinSuccessDuration_DisplayName();
+            return Messages.MinSuccessDurationColumn_DisplayName();
         }
 
     }

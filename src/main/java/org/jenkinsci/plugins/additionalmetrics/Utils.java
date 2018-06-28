@@ -98,4 +98,23 @@ class Utils {
         return searchFunction.apply(filteredRuns);
     }
 
+    @CheckForNull
+    static Duration averageDuration(Iterable<? extends Run> runs, Predicate<Run> preFilter) {
+        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter);
+
+        if (Iterables.isEmpty(filteredRuns)) {
+            return null;
+        }
+
+        int totalRuns = 0;
+        long totalDurations = 0;
+
+        for (Run run : filteredRuns) {
+            totalRuns++;
+            totalDurations += run.getDuration();
+        }
+
+        return new Duration(totalDurations / totalRuns);
+    }
+
 }

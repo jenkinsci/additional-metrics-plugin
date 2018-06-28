@@ -65,7 +65,7 @@ public class MaxDurationColumn extends ListViewColumn {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return Messages.MaxDuration_DisplayName();
+            return Messages.MaxDurationColumn_DisplayName();
         }
 
     }

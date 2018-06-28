@@ -34,27 +34,25 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.MAX_DURATION;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
+import static org.jenkinsci.plugins.additionalmetrics.Utils.averageDuration;
 
-public class MaxSuccessDurationColumn extends ListViewColumn {
+public class AvgDurationColumn extends ListViewColumn {
 
     @DataBoundConstructor
-    public MaxSuccessDurationColumn() {
+    public AvgDurationColumn() {
         super();
     }
 
-    public Run getLongestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
-        return findRun(
+    public Duration getAverageDuration(Job<? extends Job, ? extends Run> job) {
+        return averageDuration(
                 job.getBuilds(),
-                SUCCESS,
-                MAX_DURATION
+                COMPLETED
         );
     }
 
     @Extension
-    @Symbol("maxSuccessDuration")
+    @Symbol("avgDuration")
     public static class DescriptorImpl extends ListViewColumnDescriptor {
 
         @Override
@@ -65,7 +63,7 @@ public class MaxSuccessDurationColumn extends ListViewColumn {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return Messages.MaxSuccessDurationColumn_DisplayName();
+            return Messages.AvgDurationColumn_DisplayName();
         }
 
     }
