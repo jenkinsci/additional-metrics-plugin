@@ -55,7 +55,7 @@ public class MinDurationColumnTest {
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
-        Run<?, ?> shortestRun = minDurationColumn.getShortestRun(project);
+        Run shortestRun = minDurationColumn.getShortestRun(project);
 
         assertNull(shortestRun);
     }
@@ -68,7 +68,7 @@ public class MinDurationColumnTest {
         project.setDefinition(sleepDefinition(3));
         project.scheduleBuild2(0).get();
 
-        Run<?, ?> shortestRun = minDurationColumn.getShortestRun(project);
+        Run shortestRun = minDurationColumn.getShortestRun(project);
 
         assertSame(run1, shortestRun);
     }
@@ -81,7 +81,7 @@ public class MinDurationColumnTest {
         project.setDefinition(sleepDefinition(3));
         project.scheduleBuild2(0).get();
 
-        Run<?, ?> shortestRun = minDurationColumn.getShortestRun(project);
+        Run shortestRun = minDurationColumn.getShortestRun(project);
 
         assertSame(run1, shortestRun);
     }
@@ -92,7 +92,7 @@ public class MinDurationColumnTest {
         project.setDefinition(failingDefinition());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        Run<?, ?> shortestRun = minDurationColumn.getShortestRun(project);
+        Run shortestRun = minDurationColumn.getShortestRun(project);
 
         assertSame(run, shortestRun);
     }
@@ -103,7 +103,7 @@ public class MinDurationColumnTest {
         project.setDefinition(unstableDefinition());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        Run<?, ?> shortestRun = minDurationColumn.getShortestRun(project);
+        Run shortestRun = minDurationColumn.getShortestRun(project);
 
         assertSame(run, shortestRun);
     }
@@ -114,7 +114,7 @@ public class MinDurationColumnTest {
         project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
 
-        Run<?, ?> shortestRun = minDurationColumn.getShortestRun(project);
+        Run shortestRun = minDurationColumn.getShortestRun(project);
 
         assertNull(shortestRun);
     }

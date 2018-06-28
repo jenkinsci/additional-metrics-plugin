@@ -34,9 +34,13 @@ import javax.annotation.CheckForNull;
 
 class Utils {
 
+    private Utils() {
+        // utility class
+    }
+
     @CheckForNull
-    static Rate rateOf(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> preFilter, Predicate<Run<?, ?>> predicateRate) {
-        Iterable<? extends Run<?, ?>> filteredRuns = Iterables.filter(runs, preFilter);
+    static Rate rateOf(Iterable<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
+        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter);
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
@@ -45,7 +49,7 @@ class Utils {
         int totalRuns = 0;
         int predicateApplicableRuns = 0;
 
-        for (Run<?, ?> run : filteredRuns) {
+        for (Run run : filteredRuns) {
             totalRuns++;
             if (predicateRate.apply(run)) {
                 predicateApplicableRuns++;
@@ -56,8 +60,8 @@ class Utils {
     }
 
     @CheckForNull
-    static Rate timeRateOf(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> preFilter, Predicate<Run<?, ?>> predicateRate) {
-        Iterable<? extends Run<?, ?>> filteredRuns = Iterables.filter(runs, preFilter);
+    static Rate timeRateOf(Iterable<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
+        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter);
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
@@ -70,7 +74,7 @@ class Utils {
         long previousTime = endTime;
         long accumulatedPredicateTime = 0L;
 
-        for (Run<?, ?> run : filteredRuns) {
+        for (Run run : filteredRuns) {
             long runStartTime = run.getStartTimeInMillis();
 
             if (predicateRate.apply(run)) {
@@ -84,8 +88,8 @@ class Utils {
     }
 
     @CheckForNull
-    static Run<?, ?> findRun(Iterable<? extends Run<?, ?>> runs, Predicate<Run<?, ?>> preFilter, Function<Iterable<? extends Run<?, ?>>, Run<?, ?>> searchFunction) {
-        Iterable<? extends Run<?, ?>> filteredRuns = Iterables.filter(runs, preFilter);
+    static Run findRun(Iterable<? extends Run> runs, Predicate<Run> preFilter, Function<Iterable<? extends Run>, Run> searchFunction) {
+        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter);
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;

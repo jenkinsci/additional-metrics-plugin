@@ -37,17 +37,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 class UIHelpers {
-    static String getListViewCellValue(HtmlPage page, ListView view, String jobName, String fieldName) {
-        int i = 0;
-        Map<String, Integer> textToIndex = new HashMap<>();
-        for (ListViewColumn column : view.getColumns()) {
-            textToIndex.put(column.getColumnCaption(), i++);
-        }
 
-        DomElement tr = page.getElementById("job_" + jobName);
-        DomNode td = tr.getChildNodes().get(textToIndex.get(fieldName));
-
-        return td.asText();
+    private UIHelpers() {
+        // utility class
     }
 
     static DomNode getListViewCell(HtmlPage page, ListView view, String jobName, String fieldName) {

@@ -35,15 +35,18 @@ import java.io.Serializable;
 
 class Helpers {
 
-    static final Function<Iterable<? extends Run<?, ?>>, Run<?, ?>> MIN_DURATION = new MinDuration();
-    static final Function<Iterable<? extends Run<?, ?>>, Run<?, ?>> MAX_DURATION = new MaxDuration();
-    static final Predicate<Run<?, ?>> SUCCESS = new ResultPredicate(Result.SUCCESS);
-    static final Predicate<Run<?, ?>> NOT_SUCCESS = Predicates.not(SUCCESS);
-    static final Predicate<Run<?, ?>> COMPLETED = new CompletedPredicate();
+    static final Function<Iterable<? extends Run>, Run> MIN_DURATION = new MinDuration();
+    static final Function<Iterable<? extends Run>, Run> MAX_DURATION = new MaxDuration();
+    static final Predicate<Run> SUCCESS = new ResultPredicate(Result.SUCCESS);
+    static final Predicate<Run> NOT_SUCCESS = Predicates.not(SUCCESS);
+    static final Predicate<Run> COMPLETED = new CompletedPredicate();
+    private static final Ordering<Run> DURATION_ORDERING = new DurationOrdering();
 
-    private static final Ordering<Run<?, ?>> DURATION_ORDERING = new DurationOrdering();
+    private Helpers() {
+        // utility class
+    }
 
-    static class ResultPredicate implements Predicate<Run<?, ?>> {
+    static class ResultPredicate implements Predicate<Run> {
         private final Result expectedResult;
 
         ResultPredicate(Result expectedResult) {
@@ -51,35 +54,35 @@ class Helpers {
         }
 
         @Override
-        public boolean apply(Run<?, ?> run) {
+        public boolean apply(Run run) {
             return run.getResult() == expectedResult;
         }
     }
 
-    private static class DurationOrdering extends Ordering<Run<?, ?>> implements Serializable {
+    private static class DurationOrdering extends Ordering<Run> implements Serializable {
         @Override
-        public int compare(Run<?, ?> left, Run<?, ?> right) {
+        public int compare(Run left, Run right) {
             return Long.compare(left.getDuration(), right.getDuration());
         }
     }
 
-    private static class MinDuration implements Function<Iterable<? extends Run<?, ?>>, Run<?, ?>> {
+    private static class MinDuration implements Function<Iterable<? extends Run>, Run> {
         @Override
-        public Run<?, ?> apply(Iterable<? extends Run<?, ?>> input) {
+        public Run apply(Iterable<? extends Run> input) {
             return DURATION_ORDERING.min(input);
         }
     }
 
-    private static class MaxDuration implements Function<Iterable<? extends Run<?, ?>>, Run<?, ?>> {
+    private static class MaxDuration implements Function<Iterable<? extends Run>, Run> {
         @Override
-        public Run<?, ?> apply(Iterable<? extends Run<?, ?>> input) {
+        public Run apply(Iterable<? extends Run> input) {
             return DURATION_ORDERING.max(input);
         }
     }
 
-    private static class CompletedPredicate implements Predicate<Run<?, ?>> {
+    private static class CompletedPredicate implements Predicate<Run> {
         @Override
-        public boolean apply(Run<?, ?> input) {
+        public boolean apply(Run input) {
             return !input.isBuilding();
         }
     }

@@ -35,8 +35,8 @@ import org.jvnet.hudson.test.JenkinsRule;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCellValue;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class SuccessRateColumnTest {
     @ClassRule

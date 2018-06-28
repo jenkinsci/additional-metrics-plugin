@@ -37,8 +37,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class RateStringParameterizedTest {
 
-    private double input;
-    private String expected;
+    private final double input;
+    private final String expected;
 
     public RateStringParameterizedTest(double input, String expected) {
         this.input = input;

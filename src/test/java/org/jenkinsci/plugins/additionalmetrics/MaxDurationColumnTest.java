@@ -55,7 +55,7 @@ public class MaxDurationColumnTest {
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
-        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
+        Run longestRun = maxDurationColumn.getLongestRun(project);
 
         assertNull(longestRun);
     }
@@ -68,7 +68,7 @@ public class MaxDurationColumnTest {
         project.setDefinition(sleepDefinition(3));
         WorkflowRun run2 = project.scheduleBuild2(0).get();
 
-        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
+        Run longestRun = maxDurationColumn.getLongestRun(project);
 
         assertSame(run2, longestRun);
     }
@@ -81,7 +81,7 @@ public class MaxDurationColumnTest {
         project.setDefinition(sleepThenFailDefinition(3));
         WorkflowRun run2 = project.scheduleBuild2(0).get();
 
-        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
+        Run longestRun = maxDurationColumn.getLongestRun(project);
 
         assertSame(run2, longestRun);
     }
@@ -92,7 +92,7 @@ public class MaxDurationColumnTest {
         project.setDefinition(failingDefinition());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
+        Run longestRun = maxDurationColumn.getLongestRun(project);
 
         assertSame(run, longestRun);
     }
@@ -103,7 +103,7 @@ public class MaxDurationColumnTest {
         project.setDefinition(unstableDefinition());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
+        Run longestRun = maxDurationColumn.getLongestRun(project);
 
         assertSame(run, longestRun);
     }
@@ -114,7 +114,7 @@ public class MaxDurationColumnTest {
         project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
 
-        Run<?, ?> longestRun = maxDurationColumn.getLongestRun(project);
+        Run longestRun = maxDurationColumn.getLongestRun(project);
 
         assertNull(longestRun);
     }

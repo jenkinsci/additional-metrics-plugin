@@ -55,7 +55,7 @@ public class MinSuccessDurationColumnTest {
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
-        Run<?, ?> shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
+        Run shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
 
         assertNull(shortestRun);
     }
@@ -68,7 +68,7 @@ public class MinSuccessDurationColumnTest {
         project.setDefinition(sleepDefinition(3));
         project.scheduleBuild2(0).get();
 
-        Run<?, ?> shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
+        Run shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
 
         assertSame(run1, shortestRun);
     }
@@ -79,7 +79,7 @@ public class MinSuccessDurationColumnTest {
         project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
 
-        Run<?, ?> shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
+        Run shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
 
         assertNull(shortestRun);
     }
@@ -90,7 +90,7 @@ public class MinSuccessDurationColumnTest {
         project.setDefinition(unstableDefinition());
         project.scheduleBuild2(0).get();
 
-        Run<?, ?> shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
+        Run shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
 
         assertNull(shortestRun);
     }
@@ -101,7 +101,7 @@ public class MinSuccessDurationColumnTest {
         project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
 
-        Run<?, ?> shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
+        Run shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
 
         assertNull(shortestRun);
     }

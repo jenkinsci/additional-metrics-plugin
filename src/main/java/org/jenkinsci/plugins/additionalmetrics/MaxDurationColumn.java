@@ -45,7 +45,7 @@ public class MaxDurationColumn extends ListViewColumn {
         super();
     }
 
-    public Run<?, ?> getLongestRun(Job<? extends Job, ? extends Run> job) {
+    public Run getLongestRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),
                 COMPLETED,

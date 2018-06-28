@@ -32,9 +32,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.failingDefinition;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.slowDefinition;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.successDefinition;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
 import static org.junit.Assert.*;
