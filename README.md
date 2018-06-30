@@ -10,6 +10,12 @@ Provides additional metrics via columns in Jenkins' List View.
 - Success and Failure rates.
 - Success and Failure time rates (ie Uptime and Downtime).
 
+### REST API
+All provided metrics are also exposed in the Job's REST API as a job Action. They will show up at depth=3. For example, to access `Project` metrics, you can use the following request:
+```
+<JENKINS_URL>/api/xml?depth=3&xpath=/hudson/job[name='Project']/action/jobMetrics
+```
+
 ### Requirements
 Jenkins 1.651.3 or later.
 
