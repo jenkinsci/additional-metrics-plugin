@@ -35,26 +35,25 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import javax.annotation.Nonnull;
 
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
 
-public class MinSuccessDurationColumn extends ListViewColumn {
+public class MinCheckoutDurationColumn extends ListViewColumn {
 
     @DataBoundConstructor
-    public MinSuccessDurationColumn() {
+    public MinCheckoutDurationColumn() {
         super();
     }
 
-    public RunWithDuration getShortestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
-        return findRun(
+    public RunWithDuration getShortestCheckoutRun(Job<? extends Job, ? extends Run> job) {
+        return Utils.findRun(
                 job.getBuilds(),
-                SUCCESS,
-                RUN_DURATION,
+                COMPLETED,
+                RUN_CHECKOUT_DURATION,
                 MIN
         );
     }
 
     @Extension
-    @Symbol("minSuccessDuration")
+    @Symbol("minCheckoutDuration")
     public static class DescriptorImpl extends ListViewColumnDescriptor {
 
         @Override
@@ -65,7 +64,7 @@ public class MinSuccessDurationColumn extends ListViewColumn {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return Messages.MinSuccessDurationColumn_DisplayName();
+            return Messages.MinCheckoutDurationColumn_DisplayName();
         }
 
     }

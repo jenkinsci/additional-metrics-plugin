@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2019 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,8 +34,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.MAX_DURATION;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
 import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
 
 public class MaxDurationColumn extends ListViewColumn {
@@ -45,11 +44,12 @@ public class MaxDurationColumn extends ListViewColumn {
         super();
     }
 
-    public Run getLongestRun(Job<? extends Job, ? extends Run> job) {
+    public RunWithDuration getLongestRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),
                 COMPLETED,
-                MAX_DURATION
+                RUN_DURATION,
+                MAX
         );
     }
 

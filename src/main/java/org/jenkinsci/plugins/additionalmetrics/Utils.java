@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2019 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,8 @@ import com.google.common.collect.Iterables;
 import hudson.model.Run;
 
 import javax.annotation.CheckForNull;
+import java.util.ArrayList;
+import java.util.List;
 
 
 class Utils {
@@ -88,18 +90,31 @@ class Utils {
     }
 
     @CheckForNull
-    static Run findRun(Iterable<? extends Run> runs, Predicate<Run> preFilter, Function<Iterable<? extends Run>, Run> searchFunction) {
+    static RunWithDuration findRun(Iterable<? extends Run> runs, Predicate<Run> preFilter, final Function<Run, Long> durationFunction, Function<Iterable<RunWithDuration>, RunWithDuration> searchFunction) {
         Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter);
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
         }
 
-        return searchFunction.apply(filteredRuns);
+        List<RunWithDuration> runWithDurationList = new ArrayList<>();
+
+        for (Run run : filteredRuns) {
+            Long curDurationMs = durationFunction.apply(run);
+            if (curDurationMs > 0) {
+                runWithDurationList.add(new RunWithDuration(run, new Duration(curDurationMs)));
+            }
+        }
+
+        if (runWithDurationList.isEmpty()) {
+            return null;
+        }
+
+        return searchFunction.apply(runWithDurationList);
     }
 
     @CheckForNull
-    static Duration averageDuration(Iterable<? extends Run> runs, Predicate<Run> preFilter) {
+    static Duration averageDuration(Iterable<? extends Run> runs, Predicate<Run> preFilter, Function<Run, Long> durationFunction) {
         Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter);
 
         if (Iterables.isEmpty(filteredRuns)) {
@@ -110,8 +125,15 @@ class Utils {
         long totalDurations = 0;
 
         for (Run run : filteredRuns) {
-            totalRuns++;
-            totalDurations += run.getDuration();
+            Long curDurationMs = durationFunction.apply(run);
+            if (curDurationMs > 0) {
+                totalRuns++;
+                totalDurations += curDurationMs;
+            }
+        }
+
+        if (totalRuns == 0) {
+            return null;
         }
 
         return new Duration(totalDurations / totalRuns);

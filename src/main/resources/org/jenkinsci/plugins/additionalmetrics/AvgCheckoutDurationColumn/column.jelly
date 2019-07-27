@@ -24,15 +24,11 @@
   -->
 
 <j:jelly xmlns:j="jelly:core">
-    <j:set var="longestRun" value="${it.getLongestSuccessfulRun(job)}"/>
-    <td data="${longestRun.duration.asLong ?: '0'}">
+    <j:set var="averageCheckoutDuration" value="${it.getAverageCheckoutDuration(job)}"/>
+    <td data="${averageCheckoutDuration.asLong ?: '0'}">
         <j:choose>
-            <j:when test="${longestRun!=null}">
-                ${longestRun.run.durationString}
-                -
-                <a href="${jobBaseUrl}${job.shortUrl}${longestRun.run.id}/" class="model-link inside">
-                    ${longestRun.run.displayName}
-                </a>
+            <j:when test="${averageCheckoutDuration!=null}">
+                ${averageCheckoutDuration.asString}
             </j:when>
             <j:otherwise>
                 ${%N/A}

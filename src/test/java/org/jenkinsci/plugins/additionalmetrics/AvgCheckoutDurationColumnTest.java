@@ -25,86 +25,74 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import hudson.model.FreeStyleProject;
 import hudson.model.ListView;
+import hudson.plugins.git.GitSCM;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.hudson.test.JenkinsRule.WebClient;
+import org.jvnet.hudson.test.SleepBuilder;
 
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
 import static org.junit.Assert.*;
 
-public class MaxDurationColumnTest {
+public class AvgCheckoutDurationColumnTest {
     @ClassRule
     public static final JenkinsRule jenkinsRule = new JenkinsRule();
 
-    private MaxDurationColumn maxDurationColumn;
+    private AvgCheckoutDurationColumn avgCheckoutDurationColumn;
 
     @Before
     public void before() {
-        maxDurationColumn = new MaxDurationColumn();
+        avgCheckoutDurationColumn = new AvgCheckoutDurationColumn();
     }
 
     @Test
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
+        Duration avgDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(project);
 
-        assertNull(longestRun);
+        assertNull(avgDuration);
     }
 
     @Test
-    public void two_successful_runs_should_return_the_longest() throws Exception {
+    public void two_successful_runs_should_return_a_positive_average_checkout_duration() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
-        project.setDefinition(sleepDefinition(1));
+        project.setDefinition(checkoutDefinition());
         project.scheduleBuild2(0).get();
-        project.setDefinition(sleepDefinition(3));
-        WorkflowRun run2 = project.scheduleBuild2(0).get();
-
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
-
-        assertSame(run2, longestRun.getRun());
-    }
-
-    @Test
-    public void two_runs_including_one_failure_should_return_the_longest() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoBuildsOneFailure");
-        project.setDefinition(sleepDefinition(1));
+        project.setDefinition(checkoutDefinition());
         project.scheduleBuild2(0).get();
-        project.setDefinition(sleepThenFailDefinition(3));
-        WorkflowRun run2 = project.scheduleBuild2(0).get();
 
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
+        Duration avgDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(project);
 
-        assertSame(run2, longestRun.getRun());
+        assertThat(avgDuration.getAsLong(), greaterThan(0L));
     }
 
     @Test
     public void failed_runs_are_not_excluded() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailedBuild");
-        project.setDefinition(failingDefinition());
-        WorkflowRun run = project.scheduleBuild2(0).get();
+        project.setDefinition(checkoutThenFailDefinition());
+        project.scheduleBuild2(0).get();
 
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
+        Duration avgDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(project);
 
-        assertSame(run, longestRun.getRun());
+        assertThat(avgDuration.getAsLong(), greaterThan(0L));
     }
 
     @Test
     public void unstable_runs_are_not_excluded() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableBuild");
-        project.setDefinition(unstableDefinition());
-        WorkflowRun run = project.scheduleBuild2(0).get();
+        project.setDefinition(checkoutThenUnstableDefinition());
+        project.scheduleBuild2(0).get();
 
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
+        Duration avgDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(project);
 
-        assertSame(run, longestRun.getRun());
+        assertThat(avgDuration.getAsLong(), greaterThan(0L));
     }
 
     @Test
@@ -113,20 +101,32 @@ public class MaxDurationColumnTest {
         project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
 
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
+        Duration avgDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(project);
 
-        assertNull(longestRun);
+        assertNull(avgDuration);
+    }
+
+    @Test
+    public void freestyle_jobs_are_not_counted() throws Exception {
+        FreeStyleProject project = jenkinsRule.createFreeStyleProject("FreestyleProjectWithOneBuild");
+        project.setScm(new GitSCM("https://github.com/jenkinsci/additional-metrics-plugin.git"));
+        project.getBuildersList().add(new SleepBuilder(200));
+        project.scheduleBuild2(0).waitForStart();
+
+        Duration avgDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(project);
+
+        assertNull(avgDuration);
     }
 
     @Test
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", maxDurationColumn, project);
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", avgCheckoutDurationColumn, project);
 
         DomNode columnNode;
-        try (WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), maxDurationColumn.getColumnCaption());
+        try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), avgCheckoutDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asText());
@@ -134,24 +134,22 @@ public class MaxDurationColumnTest {
     }
 
     @Test
-    public void one_run_should_display_time_and_build_in_UI() throws Exception {
+    public void one_run_should_display_avg_duration_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
-        project.setDefinition(sleepDefinition(1));
-        WorkflowRun run = project.scheduleBuild2(0).get();
+        project.setDefinition(checkoutDefinition());
+        project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", maxDurationColumn, project);
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", avgCheckoutDurationColumn, project);
 
         DomNode columnNode;
-        try (WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), maxDurationColumn.getColumnCaption());
+        try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), avgCheckoutDurationColumn.getColumnCaption());
         }
 
-        // sample output: 1.1 sec - #1
+        // sample output: 1.1 sec
         String text = columnNode.asText();
         assertTrue(text.contains("sec"));
-        assertTrue(text.contains("#" + run.getId()));
 
         assertThat(Long.parseLong(dataOf(columnNode)), greaterThan(0L));
     }
-
 }

@@ -25,7 +25,9 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
+import hudson.model.FreeStyleProject;
 import hudson.model.ListView;
+import hudson.plugins.git.GitSCM;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
@@ -33,78 +35,64 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
+import org.jvnet.hudson.test.SleepBuilder;
 
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
 import static org.junit.Assert.*;
 
-public class MaxDurationColumnTest {
+public class MaxCheckoutDurationColumnTest {
     @ClassRule
     public static final JenkinsRule jenkinsRule = new JenkinsRule();
 
-    private MaxDurationColumn maxDurationColumn;
+    private MaxCheckoutDurationColumn maxCheckoutDurationColumn;
 
     @Before
     public void before() {
-        maxDurationColumn = new MaxDurationColumn();
+        maxCheckoutDurationColumn = new MaxCheckoutDurationColumn();
     }
 
     @Test
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
+        RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(project);
 
-        assertNull(longestRun);
+        assertNull(longestCheckoutRun);
     }
 
     @Test
-    public void two_successful_runs_should_return_the_longest() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
-        project.setDefinition(sleepDefinition(1));
+    public void one_run_with_checkout_should_return_checkout() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithCheckout");
+        project.setDefinition(checkoutDefinition());
         project.scheduleBuild2(0).get();
-        project.setDefinition(sleepDefinition(3));
-        WorkflowRun run2 = project.scheduleBuild2(0).get();
 
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
+        RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(project);
 
-        assertSame(run2, longestRun.getRun());
+        assertThat(longestCheckoutRun.getDuration().getAsLong(), greaterThan(0L));
     }
 
     @Test
-    public void two_runs_including_one_failure_should_return_the_longest() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoBuildsOneFailure");
-        project.setDefinition(sleepDefinition(1));
-        project.scheduleBuild2(0).get();
-        project.setDefinition(sleepThenFailDefinition(3));
-        WorkflowRun run2 = project.scheduleBuild2(0).get();
-
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
-
-        assertSame(run2, longestRun.getRun());
-    }
-
-    @Test
-    public void failed_runs_are_not_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailedBuild");
-        project.setDefinition(failingDefinition());
+    public void failed_runs_are_included_in_the_checkout_time_calculation() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithFailureAfterCheckout");
+        project.setDefinition(checkoutThenFailDefinition());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
+        RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(project);
 
-        assertSame(run, longestRun.getRun());
+        assertSame(run, longestCheckoutRun.getRun());
     }
 
     @Test
-    public void unstable_runs_are_not_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableBuild");
-        project.setDefinition(unstableDefinition());
+    public void unstable_runs_are_included_in_the_checkout_time_calculation() throws Exception {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithUnstableAfterCheckout");
+        project.setDefinition(checkoutThenUnstableDefinition());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
+        RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(project);
 
-        assertSame(run, longestRun.getRun());
+        assertSame(run, longestCheckoutRun.getRun());
     }
 
     @Test
@@ -113,20 +101,32 @@ public class MaxDurationColumnTest {
         project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
 
-        RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
+        RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(project);
 
-        assertNull(longestRun);
+        assertNull(longestCheckoutRun);
+    }
+
+    @Test
+    public void freestyle_jobs_are_not_counted() throws Exception {
+        FreeStyleProject project = jenkinsRule.createFreeStyleProject("FreestyleProjectWithOneBuild");
+        project.setScm(new GitSCM("https://github.com/jenkinsci/additional-metrics-plugin.git"));
+        project.getBuildersList().add(new SleepBuilder(200));
+        project.scheduleBuild2(0).waitForStart();
+
+        RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(project);
+
+        assertNull(longestCheckoutRun);
     }
 
     @Test
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", maxDurationColumn, project);
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", maxCheckoutDurationColumn, project);
 
         DomNode columnNode;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), maxDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), maxCheckoutDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asText());
@@ -136,14 +136,14 @@ public class MaxDurationColumnTest {
     @Test
     public void one_run_should_display_time_and_build_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
-        project.setDefinition(sleepDefinition(1));
+        project.setDefinition(checkoutDefinition());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", maxDurationColumn, project);
+        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", maxCheckoutDurationColumn, project);
 
         DomNode columnNode;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), maxDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), maxCheckoutDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec - #1

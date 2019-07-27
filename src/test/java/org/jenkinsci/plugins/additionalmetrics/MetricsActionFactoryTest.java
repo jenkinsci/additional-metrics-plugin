@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2019 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.checkoutDefinition;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.successDefinition;
 
 public class MetricsActionFactoryTest {
@@ -58,12 +59,15 @@ public class MetricsActionFactoryTest {
             Map<String, String> metrics = childrenAsMap(xmlPage.getDocumentElement());
 
             assertThat(metrics,
-                    match("avgDuration", isEqualTo(0),
+                    match("avgCheckoutDuration", isEqualTo(0),
+                            "avgDuration", isEqualTo(0),
                             "avgSuccessDuration", isEqualTo(0),
                             "failureRate", isEqualTo(0.0),
                             "failureTimeRate", isEqualTo(0.0),
+                            "maxCheckoutDuration", isEqualTo(0),
                             "maxDuration", isEqualTo(0),
                             "maxSuccessDuration", isEqualTo(0),
+                            "minCheckoutDuration", isEqualTo(0),
                             "minDuration", isEqualTo(0),
                             "minSuccessDuration", isEqualTo(0),
                             "successRate", isEqualTo(0.0),
@@ -95,6 +99,26 @@ public class MetricsActionFactoryTest {
                             "minSuccessDuration", isGreaterThan(0),
                             "successRate", isEqualTo(1.0),
                             "successTimeRate", isEqualTo(1.0)
+                    )
+            );
+        }
+    }
+
+    @Test
+    public void one_checkout_run_should_have_checkout_metrics() throws IOException, SAXException, ExecutionException, InterruptedException {
+        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneCheckoutBuild");
+        project.setDefinition(checkoutDefinition());
+        project.scheduleBuild2(0).get();
+
+        try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
+            XmlPage xmlPage = webClient.goToXml("api/xml?depth=3&xpath=/hudson/job[name='ProjectWithOneCheckoutBuild']/action/jobMetrics");
+
+            Map<String, String> metrics = childrenAsMap(xmlPage.getDocumentElement());
+
+            assertThat(metrics,
+                    match("avgCheckoutDuration", isGreaterThan(0),
+                            "minCheckoutDuration", isGreaterThan(0),
+                            "maxCheckoutDuration", isGreaterThan(0)
                     )
             );
         }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2019 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,14 +33,22 @@ import hudson.model.Run;
 
 import java.io.Serializable;
 
+import static org.jenkinsci.plugins.additionalmetrics.CheckoutDuration.checkoutDurationOf;
+
 class Helpers {
 
-    static final Function<Iterable<? extends Run>, Run> MIN_DURATION = new MinDuration();
-    static final Function<Iterable<? extends Run>, Run> MAX_DURATION = new MaxDuration();
+    static final Function<Run, Long> RUN_DURATION = new DurationFunction();
+    static final Function<Run, Long> RUN_CHECKOUT_DURATION = new CheckoutDurationFunction();
+
     static final Predicate<Run> SUCCESS = new ResultPredicate(Result.SUCCESS);
     static final Predicate<Run> NOT_SUCCESS = Predicates.not(SUCCESS);
     static final Predicate<Run> COMPLETED = new CompletedPredicate();
-    private static final Ordering<Run> DURATION_ORDERING = new DurationOrdering();
+
+    private static final Ordering<RunWithDuration> DURATION_ORDERING = new DurationOrdering();
+
+    static final Function<Iterable<RunWithDuration>, RunWithDuration> MIN = new Min(DURATION_ORDERING);
+    static final Function<Iterable<RunWithDuration>, RunWithDuration> MAX = new Max(DURATION_ORDERING);
+
 
     private Helpers() {
         // utility class
@@ -59,24 +67,36 @@ class Helpers {
         }
     }
 
-    private static class DurationOrdering extends Ordering<Run> implements Serializable {
+    private static class DurationOrdering extends Ordering<RunWithDuration> implements Serializable {
         @Override
-        public int compare(Run left, Run right) {
-            return Long.compare(left.getDuration(), right.getDuration());
+        public int compare(RunWithDuration left, RunWithDuration right) {
+            return Long.compare(left.getDuration().getAsLong(), right.getDuration().getAsLong());
         }
     }
 
-    private static class MinDuration implements Function<Iterable<? extends Run>, Run> {
+    private static class Min implements Function<Iterable<RunWithDuration>, RunWithDuration> {
+        private final Ordering<RunWithDuration> ordering;
+
+        private Min(Ordering<RunWithDuration> ordering) {
+            this.ordering = ordering;
+        }
+
         @Override
-        public Run apply(Iterable<? extends Run> input) {
-            return DURATION_ORDERING.min(input);
+        public RunWithDuration apply(Iterable<RunWithDuration> input) {
+            return ordering.min(input);
         }
     }
 
-    private static class MaxDuration implements Function<Iterable<? extends Run>, Run> {
+    private static class Max implements Function<Iterable<RunWithDuration>, RunWithDuration> {
+        private final Ordering<RunWithDuration> ordering;
+
+        private Max(Ordering<RunWithDuration> ordering) {
+            this.ordering = ordering;
+        }
+
         @Override
-        public Run apply(Iterable<? extends Run> input) {
-            return DURATION_ORDERING.max(input);
+        public RunWithDuration apply(Iterable<RunWithDuration> input) {
+            return ordering.max(input);
         }
     }
 
@@ -86,4 +106,19 @@ class Helpers {
             return !input.isBuilding();
         }
     }
+
+    private static class DurationFunction implements Function<Run, Long> {
+        @Override
+        public Long apply(Run input) {
+            return input.getDuration();
+        }
+    }
+
+    private static class CheckoutDurationFunction implements Function<Run, Long> {
+        @Override
+        public Long apply(Run input) {
+            return checkoutDurationOf(input);
+        }
+    }
+
 }

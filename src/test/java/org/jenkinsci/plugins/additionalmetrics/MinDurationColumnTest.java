@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2019 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.additionalmetrics;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
-import hudson.model.Run;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
@@ -35,9 +34,9 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
 
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
 import static org.junit.Assert.*;
 
 public class MinDurationColumnTest {
@@ -55,7 +54,7 @@ public class MinDurationColumnTest {
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
-        Run shortestRun = minDurationColumn.getShortestRun(project);
+        RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
 
         assertNull(shortestRun);
     }
@@ -68,9 +67,9 @@ public class MinDurationColumnTest {
         project.setDefinition(sleepDefinition(3));
         project.scheduleBuild2(0).get();
 
-        Run shortestRun = minDurationColumn.getShortestRun(project);
+        RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
 
-        assertSame(run1, shortestRun);
+        assertSame(run1, shortestRun.getRun());
     }
 
     @Test
@@ -81,9 +80,9 @@ public class MinDurationColumnTest {
         project.setDefinition(sleepDefinition(3));
         project.scheduleBuild2(0).get();
 
-        Run shortestRun = minDurationColumn.getShortestRun(project);
+        RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
 
-        assertSame(run1, shortestRun);
+        assertSame(run1, shortestRun.getRun());
     }
 
     @Test
@@ -92,9 +91,9 @@ public class MinDurationColumnTest {
         project.setDefinition(failingDefinition());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        Run shortestRun = minDurationColumn.getShortestRun(project);
+        RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
 
-        assertSame(run, shortestRun);
+        assertSame(run, shortestRun.getRun());
     }
 
     @Test
@@ -103,9 +102,9 @@ public class MinDurationColumnTest {
         project.setDefinition(unstableDefinition());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        Run shortestRun = minDurationColumn.getShortestRun(project);
+        RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
 
-        assertSame(run, shortestRun);
+        assertSame(run, shortestRun.getRun());
     }
 
     @Test
@@ -114,7 +113,7 @@ public class MinDurationColumnTest {
         project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
 
-        Run shortestRun = minDurationColumn.getShortestRun(project);
+        RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
 
         assertNull(shortestRun);
     }
@@ -152,7 +151,7 @@ public class MinDurationColumnTest {
         assertTrue(text.contains("sec"));
         assertTrue(text.contains("#" + run.getId()));
 
-        assertTrue(Long.parseLong(columnNode.getAttributes().getNamedItem("data").getNodeValue()) > 0);
+        assertThat(Long.parseLong(dataOf(columnNode)), greaterThan(0L));
     }
 
 }

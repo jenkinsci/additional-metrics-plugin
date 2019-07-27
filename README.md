@@ -6,7 +6,8 @@ Additional Metrics Plugin
 Provides additional metrics via columns in Jenkins' List View.
 
 ### Provided Metrics
-- Minimum, Maximum and Average build times for all, or only successful builds.
+- Minimum, Maximum, and Average build times for all, or only successful builds.
+- Minimum, Maximum, and Average checkout times for Pipeline builds.
 - Success and Failure rates.
 - Success and Failure time rates (ie Uptime and Downtime).
 

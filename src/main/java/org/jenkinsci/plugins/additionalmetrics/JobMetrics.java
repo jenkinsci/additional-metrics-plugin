@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2019 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,6 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
 import hudson.model.Job;
-import hudson.model.Run;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 
@@ -35,6 +34,16 @@ public class JobMetrics {
 
     JobMetrics(Job job) {
         this.job = job;
+    }
+
+    @Exported
+    public long getAvgCheckoutDuration() {
+        AvgCheckoutDurationColumn avgCheckoutDurationColumn = new AvgCheckoutDurationColumn();
+        Duration avgCheckoutDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(job);
+        if (avgCheckoutDuration != null) {
+            return avgCheckoutDuration.getAsLong();
+        }
+        return 0;
     }
 
     @Exported
@@ -58,11 +67,21 @@ public class JobMetrics {
     }
 
     @Exported
+    public long getMaxCheckoutDuration() {
+        MaxCheckoutDurationColumn maxCheckoutDurationColumn = new MaxCheckoutDurationColumn();
+        RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(job);
+        if (longestCheckoutRun != null) {
+            return longestCheckoutRun.getDuration().getAsLong();
+        }
+        return 0;
+    }
+
+    @Exported
     public long getMaxDuration() {
         MaxDurationColumn maxDurationColumn = new MaxDurationColumn();
-        Run longestRun = maxDurationColumn.getLongestRun(job);
+        RunWithDuration longestRun = maxDurationColumn.getLongestRun(job);
         if (longestRun != null) {
-            return longestRun.getDuration();
+            return longestRun.getDuration().getAsLong();
         }
         return 0;
     }
@@ -70,9 +89,19 @@ public class JobMetrics {
     @Exported
     public long getMaxSuccessDuration() {
         MaxSuccessDurationColumn maxSuccessDurationColumn = new MaxSuccessDurationColumn();
-        Run longestSuccessfulRun = maxSuccessDurationColumn.getLongestSuccessfulRun(job);
+        RunWithDuration longestSuccessfulRun = maxSuccessDurationColumn.getLongestSuccessfulRun(job);
         if (longestSuccessfulRun != null) {
-            return longestSuccessfulRun.getDuration();
+            return longestSuccessfulRun.getDuration().getAsLong();
+        }
+        return 0;
+    }
+
+    @Exported
+    public long getMinCheckoutDuration() {
+        MinCheckoutDurationColumn minCheckoutDurationColumn = new MinCheckoutDurationColumn();
+        RunWithDuration shortestCheckoutRun = minCheckoutDurationColumn.getShortestCheckoutRun(job);
+        if (shortestCheckoutRun != null) {
+            return shortestCheckoutRun.getDuration().getAsLong();
         }
         return 0;
     }
@@ -80,9 +109,9 @@ public class JobMetrics {
     @Exported
     public long getMinDuration() {
         MinDurationColumn minDurationColumn = new MinDurationColumn();
-        Run shortestRun = minDurationColumn.getShortestRun(job);
+        RunWithDuration shortestRun = minDurationColumn.getShortestRun(job);
         if (shortestRun != null) {
-            return shortestRun.getDuration();
+            return shortestRun.getDuration().getAsLong();
         }
         return 0;
     }
@@ -90,9 +119,9 @@ public class JobMetrics {
     @Exported
     public long getMinSuccessDuration() {
         MinSuccessDurationColumn minSuccessDurationColumn = new MinSuccessDurationColumn();
-        Run shortestSuccessfulRun = minSuccessDurationColumn.getShortestSuccessfulRun(job);
+        RunWithDuration shortestSuccessfulRun = minSuccessDurationColumn.getShortestSuccessfulRun(job);
         if (shortestSuccessfulRun != null) {
-            return shortestSuccessfulRun.getDuration();
+            return shortestSuccessfulRun.getDuration().getAsLong();
         }
         return 0;
     }

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2019 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -63,5 +63,9 @@ class UIHelpers {
         instance.addView(listView);
 
         return listView;
+    }
+
+    static String dataOf(DomNode columnNode) {
+        return columnNode.getAttributes().getNamedItem("data").getNodeValue();
     }
 }

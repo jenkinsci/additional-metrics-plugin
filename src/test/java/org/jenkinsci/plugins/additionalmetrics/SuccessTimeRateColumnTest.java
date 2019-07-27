@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2019 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,9 +32,10 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
 import static org.junit.Assert.*;
 
 public class SuccessTimeRateColumnTest {
@@ -90,7 +91,8 @@ public class SuccessTimeRateColumnTest {
 
         Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
 
-        assertTrue(successTimeRate.getAsDouble() > 0 && successTimeRate.getAsDouble() < 1);
+        assertThat(successTimeRate.getAsDouble(), greaterThan(0.0));
+        assertThat(successTimeRate.getAsDouble(), lessThan(1.0));
     }
 
     @Test
@@ -133,7 +135,7 @@ public class SuccessTimeRateColumnTest {
         }
 
         assertEquals("100.00%", columnNode.asText());
-        assertEquals("1.0", columnNode.getAttributes().getNamedItem("data").getNodeValue());
+        assertEquals("1.0", dataOf(columnNode));
     }
 
 }

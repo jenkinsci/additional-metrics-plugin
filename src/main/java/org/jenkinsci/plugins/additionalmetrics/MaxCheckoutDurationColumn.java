@@ -37,24 +37,24 @@ import javax.annotation.Nonnull;
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
 import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
 
-public class MinSuccessDurationColumn extends ListViewColumn {
+public class MaxCheckoutDurationColumn extends ListViewColumn {
 
     @DataBoundConstructor
-    public MinSuccessDurationColumn() {
+    public MaxCheckoutDurationColumn() {
         super();
     }
 
-    public RunWithDuration getShortestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
+    public RunWithDuration getLongestCheckoutRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),
-                SUCCESS,
-                RUN_DURATION,
-                MIN
+                COMPLETED,
+                RUN_CHECKOUT_DURATION,
+                MAX
         );
     }
 
     @Extension
-    @Symbol("minSuccessDuration")
+    @Symbol("maxCheckoutDuration")
     public static class DescriptorImpl extends ListViewColumnDescriptor {
 
         @Override
@@ -65,7 +65,7 @@ public class MinSuccessDurationColumn extends ListViewColumn {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return Messages.MinSuccessDurationColumn_DisplayName();
+            return Messages.MaxCheckoutDurationColumn_DisplayName();
         }
 
     }

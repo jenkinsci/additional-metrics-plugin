@@ -34,27 +34,27 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import javax.annotation.Nonnull;
 
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.RUN_CHECKOUT_DURATION;
+import static org.jenkinsci.plugins.additionalmetrics.Utils.averageDuration;
 
-public class MinSuccessDurationColumn extends ListViewColumn {
+public class AvgCheckoutDurationColumn extends ListViewColumn {
 
     @DataBoundConstructor
-    public MinSuccessDurationColumn() {
+    public AvgCheckoutDurationColumn() {
         super();
     }
 
-    public RunWithDuration getShortestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
-        return findRun(
+    public Duration getAverageCheckoutDuration(Job<? extends Job, ? extends Run> job) {
+        return averageDuration(
                 job.getBuilds(),
-                SUCCESS,
-                RUN_DURATION,
-                MIN
+                COMPLETED,
+                RUN_CHECKOUT_DURATION
         );
     }
 
     @Extension
-    @Symbol("minSuccessDuration")
+    @Symbol("avgCheckoutDuration")
     public static class DescriptorImpl extends ListViewColumnDescriptor {
 
         @Override
@@ -65,7 +65,7 @@ public class MinSuccessDurationColumn extends ListViewColumn {
         @Nonnull
         @Override
         public String getDisplayName() {
-            return Messages.MinSuccessDurationColumn_DisplayName();
+            return Messages.AvgCheckoutDurationColumn_DisplayName();
         }
 
     }

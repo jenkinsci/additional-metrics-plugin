@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2019 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import javax.annotation.Nonnull;
 
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.RUN_DURATION;
 import static org.jenkinsci.plugins.additionalmetrics.Utils.averageDuration;
 
 public class AvgDurationColumn extends ListViewColumn {
@@ -47,7 +48,8 @@ public class AvgDurationColumn extends ListViewColumn {
     public Duration getAverageDuration(Job<? extends Job, ? extends Run> job) {
         return averageDuration(
                 job.getBuilds(),
-                COMPLETED
+                COMPLETED,
+                RUN_DURATION
         );
     }
 

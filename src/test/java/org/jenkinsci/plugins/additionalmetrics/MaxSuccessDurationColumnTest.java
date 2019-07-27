@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2019 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.additionalmetrics;
 
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
-import hudson.model.Run;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
@@ -35,9 +34,9 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
 
+import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
 import static org.junit.Assert.*;
 
 public class MaxSuccessDurationColumnTest {
@@ -55,7 +54,7 @@ public class MaxSuccessDurationColumnTest {
     public void no_runs_should_return_no_data() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
-        Run longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
+        RunWithDuration longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
 
         assertNull(longestRun);
     }
@@ -68,9 +67,9 @@ public class MaxSuccessDurationColumnTest {
         project.setDefinition(sleepDefinition(3));
         WorkflowRun run2 = project.scheduleBuild2(0).get();
 
-        Run longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
+        RunWithDuration longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
 
-        assertSame(run2, longestRun);
+        assertSame(run2, longestRun.getRun());
     }
 
     @Test
@@ -79,7 +78,7 @@ public class MaxSuccessDurationColumnTest {
         project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
 
-        Run longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
+        RunWithDuration longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
 
         assertNull(longestRun);
     }
@@ -90,7 +89,7 @@ public class MaxSuccessDurationColumnTest {
         project.setDefinition(unstableDefinition());
         project.scheduleBuild2(0).get();
 
-        Run longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
+        RunWithDuration longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
 
         assertNull(longestRun);
     }
@@ -101,7 +100,7 @@ public class MaxSuccessDurationColumnTest {
         project.setDefinition(slowDefinition());
         project.scheduleBuild2(0).waitForStart();
 
-        Run longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
+        RunWithDuration longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
 
         assertNull(longestRun);
     }
@@ -139,7 +138,7 @@ public class MaxSuccessDurationColumnTest {
         assertTrue(text.contains("sec"));
         assertTrue(text.contains("#" + run.getId()));
 
-        assertTrue(Long.parseLong(columnNode.getAttributes().getNamedItem("data").getNodeValue()) > 0);
+        assertThat(Long.parseLong(dataOf(columnNode)), greaterThan(0L));
     }
 
 }
