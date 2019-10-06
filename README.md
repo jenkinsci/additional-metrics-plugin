@@ -1,6 +1,8 @@
 Additional Metrics Plugin
 =========================
 
+[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/additional-metrics.svg)](https://plugins.jenkins.io/additional-metrics)
+[![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/additional-metrics.svg?color=blue)](https://plugins.jenkins.io/additional-metrics)
 [![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/additional-metrics-plugin/master)](https://ci.jenkins.io/job/Plugins/job/additional-metrics-plugin/job/master/)
 
 Provides additional metrics via columns in Jenkins' List View.
