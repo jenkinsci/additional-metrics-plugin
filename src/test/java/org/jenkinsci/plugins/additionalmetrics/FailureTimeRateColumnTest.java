@@ -27,6 +27,7 @@ package org.jenkinsci.plugins.additionalmetrics;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -99,11 +100,13 @@ public class FailureTimeRateColumnTest {
     public void building_runs_should_be_excluded() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
         project.setDefinition(slowDefinition());
-        project.scheduleBuild2(0).waitForStart();
+        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
 
         Rate failureTimeRate = failureTimeRateColumn.getFailureTimeRate(project);
 
         assertNull(failureTimeRate);
+
+        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

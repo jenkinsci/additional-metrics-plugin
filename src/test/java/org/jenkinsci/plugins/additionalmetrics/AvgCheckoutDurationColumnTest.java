@@ -29,6 +29,7 @@ import hudson.model.FreeStyleProject;
 import hudson.model.ListView;
 import hudson.plugins.git.GitSCM;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -99,11 +100,13 @@ public class AvgCheckoutDurationColumnTest {
     public void building_runs_should_be_excluded() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
         project.setDefinition(slowDefinition());
-        project.scheduleBuild2(0).waitForStart();
+        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
 
         Duration avgDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(project);
 
         assertNull(avgDuration);
+
+        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

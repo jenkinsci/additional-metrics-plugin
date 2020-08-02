@@ -99,11 +99,13 @@ public class MinCheckoutDurationColumnTest {
     public void building_runs_should_be_excluded() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
         project.setDefinition(slowDefinition());
-        project.scheduleBuild2(0).waitForStart();
+        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
 
         RunWithDuration shortestCheckoutRun = minCheckoutDurationColumn.getShortestCheckoutRun(project);
 
         assertNull(shortestCheckoutRun);
+
+        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

@@ -111,11 +111,13 @@ public class MaxDurationColumnTest {
     public void building_runs_should_be_excluded() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
         project.setDefinition(slowDefinition());
-        project.scheduleBuild2(0).waitForStart();
+        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
 
         RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
 
         assertNull(longestRun);
+
+        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Chadi El Masri
+ * Copyright (c) 2020 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ package org.jenkinsci.plugins.additionalmetrics;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -74,11 +75,13 @@ public class FailureRateColumnTest {
     public void building_runs_should_be_excluded() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
         project.setDefinition(slowDefinition());
-        project.scheduleBuild2(0).waitForStart();
+        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
 
         Rate failureRate = failureRateColumn.getFailureRate(project);
 
         assertNull(failureRate);
+
+        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test
