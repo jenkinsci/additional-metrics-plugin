@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Chadi El Masri
+ * Copyright (c) 2020 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,14 +24,15 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import hudson.model.Run;
 
 import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.ToLongFunction;
 
 
 class Utils {
@@ -42,7 +43,7 @@ class Utils {
 
     @CheckForNull
     static Rate rateOf(Iterable<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
-        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter);
+        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter::test);
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
@@ -53,7 +54,7 @@ class Utils {
 
         for (Run run : filteredRuns) {
             totalRuns++;
-            if (predicateRate.apply(run)) {
+            if (predicateRate.test(run)) {
                 predicateApplicableRuns++;
             }
         }
@@ -63,7 +64,7 @@ class Utils {
 
     @CheckForNull
     static Rate timeRateOf(Iterable<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
-        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter);
+        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter::test);
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
@@ -79,7 +80,7 @@ class Utils {
         for (Run run : filteredRuns) {
             long runStartTime = run.getStartTimeInMillis();
 
-            if (predicateRate.apply(run)) {
+            if (predicateRate.test(run)) {
                 accumulatedPredicateTime += previousTime - runStartTime;
             }
 
@@ -90,8 +91,8 @@ class Utils {
     }
 
     @CheckForNull
-    static RunWithDuration findRun(Iterable<? extends Run> runs, Predicate<Run> preFilter, final Function<Run, Long> durationFunction, Function<Iterable<RunWithDuration>, RunWithDuration> searchFunction) {
-        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter);
+    static RunWithDuration findRun(Iterable<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction, Function<Iterable<RunWithDuration>, RunWithDuration> searchFunction) {
+        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter::test);
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
@@ -100,7 +101,7 @@ class Utils {
         List<RunWithDuration> runWithDurationList = new ArrayList<>();
 
         for (Run run : filteredRuns) {
-            Long curDurationMs = durationFunction.apply(run);
+            long curDurationMs = durationFunction.applyAsLong(run);
             if (curDurationMs > 0) {
                 runWithDurationList.add(new RunWithDuration(run, new Duration(curDurationMs)));
             }
@@ -114,8 +115,8 @@ class Utils {
     }
 
     @CheckForNull
-    static Duration averageDuration(Iterable<? extends Run> runs, Predicate<Run> preFilter, Function<Run, Long> durationFunction) {
-        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter);
+    static Duration averageDuration(Iterable<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
+        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter::test);
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
@@ -125,7 +126,7 @@ class Utils {
         long totalDurations = 0;
 
         for (Run run : filteredRuns) {
-            Long curDurationMs = durationFunction.apply(run);
+            long curDurationMs = durationFunction.applyAsLong(run);
             if (curDurationMs > 0) {
                 totalRuns++;
                 totalDurations += curDurationMs;
