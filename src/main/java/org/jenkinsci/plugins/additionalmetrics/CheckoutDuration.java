@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Chadi El Masri
+ * Copyright (c) 2020 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,14 +29,11 @@ import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.workflow.actions.TimingAction;
 import org.jenkinsci.plugins.workflow.cps.nodes.StepAtomNode;
 import org.jenkinsci.plugins.workflow.flow.FlowExecution;
+import org.jenkinsci.plugins.workflow.graph.FlowGraphWalker;
 import org.jenkinsci.plugins.workflow.graph.FlowNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.jenkinsci.plugins.workflow.steps.StepDescriptor;
 import org.jenkinsci.plugins.workflow.steps.scm.GenericSCMStep;
-
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
 
 class CheckoutDuration {
 
@@ -52,20 +49,19 @@ class CheckoutDuration {
             WorkflowRun currentBuild = (WorkflowRun) run;
             FlowExecution execution = currentBuild.getExecution();
             if (execution != null) {
-                return countCheckoutDuration(execution.getCurrentHeads());
+                return countCheckoutDuration(execution);
             }
         }
 
         return 0;
     }
 
-    private static long countCheckoutDuration(List<FlowNode> nodes) {
+    private static long countCheckoutDuration(FlowExecution execution) {
         long totalCheckoutTime = 0;
 
-        Queue<FlowNode> nodesToAccess = new LinkedList<>(nodes);
+        FlowGraphWalker graphWalker = new FlowGraphWalker(execution);
         FlowNode nextNode = null;
-        while (!nodesToAccess.isEmpty()) {
-            FlowNode node = nodesToAccess.remove();
+        for (FlowNode node : graphWalker) {
             if (node instanceof StepAtomNode) {
                 StepDescriptor descriptor = ((StepAtomNode) node).getDescriptor();
                 if (descriptor != null && descriptor.clazz.equals(GenericSCMStep.class)) {
@@ -73,11 +69,9 @@ class CheckoutDuration {
                 }
             }
             nextNode = node;
-            nodesToAccess.addAll(node.getParents());
         }
 
         return totalCheckoutTime;
     }
-
 
 }
