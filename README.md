@@ -117,7 +117,9 @@ You will get an output similar to the below (modified for clarity):
 ```
 
 ### Requirements
-Jenkins 1.651.3 or later.
+Jenkins 2.164.3 or later.
+
+For older versions of Jenkins (1.651.3+), please use version 1.3 from the [release archives](https://updates.jenkins.io/download/plugins/additional-metrics/).
 
 ### Building
 ```

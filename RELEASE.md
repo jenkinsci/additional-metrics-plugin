@@ -1,5 +1,9 @@
 ## Release notes
 
+### 1.4
+- Raised minimal Jenkins requirement to 2.164.3
+- Used BOMs to simplify plugin development
+
 ### 1.3
 - Added checkout time metric.
 
