@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Chadi El Masri
+ * Copyright (c) 2022 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -106,7 +106,7 @@ public class FailureRateColumnTest {
             columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), failureRateColumn.getColumnCaption());
         }
 
-        assertEquals("N/A", columnNode.asText());
+        assertEquals("N/A", columnNode.asNormalizedText());
         assertEquals("0.0", columnNode.getAttributes().getNamedItem("data").getNodeValue());
     }
 
@@ -123,7 +123,7 @@ public class FailureRateColumnTest {
             columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), failureRateColumn.getColumnCaption());
         }
 
-        assertEquals("100.00%", columnNode.asText());
+        assertEquals("100.00%", columnNode.asNormalizedText());
         assertEquals("1.0", dataOf(columnNode));
     }
 

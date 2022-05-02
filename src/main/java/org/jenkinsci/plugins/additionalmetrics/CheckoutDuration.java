@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Chadi El Masri
+ * Copyright (c) 2022 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,7 @@ class CheckoutDuration {
     }
 
     static long checkoutDurationOf(Run run) {
-        Jenkins instance = Jenkins.getInstance();
+        Jenkins instance = Jenkins.getInstanceOrNull();
         if (instance != null
                 && instance.getPlugin("workflow-job") != null
                 && run instanceof WorkflowRun) {

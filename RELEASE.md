@@ -1,7 +1,8 @@
 ## Release notes
 
 ### 1.4
-- Raised minimal Jenkins requirement to 2.164.3
+- Raised minimal Jenkins requirement to 2.289.3
+- Raised minimal Java requirement to Java 11
 - Used BOMs to simplify plugin development
 
 ### 1.3
