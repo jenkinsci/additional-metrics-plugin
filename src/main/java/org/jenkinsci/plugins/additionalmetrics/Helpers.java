@@ -28,9 +28,7 @@ import hudson.model.Result;
 import hudson.model.Run;
 
 import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 
@@ -45,39 +43,12 @@ class Helpers {
 
     private static final Comparator<RunWithDuration> DURATION_ORDERING = Comparator.comparing(runWithDuration -> runWithDuration.getDuration().getAsLong());
 
-    static final Function<List<RunWithDuration>, Optional<RunWithDuration>> MIN = new Min(DURATION_ORDERING);
-    static final Function<List<RunWithDuration>, Optional<RunWithDuration>> MAX = new Max(DURATION_ORDERING);
+    static final BinaryOperator<RunWithDuration> MIN = BinaryOperator.minBy(DURATION_ORDERING);
+    static final BinaryOperator<RunWithDuration> MAX = BinaryOperator.maxBy(DURATION_ORDERING);
 
     private Helpers() {
         // utility class
     }
 
-    private static class Min implements Function<List<RunWithDuration>, Optional<RunWithDuration>> {
-        private final Comparator<RunWithDuration> comparator;
-
-        private Min(Comparator<RunWithDuration> comparator) {
-            this.comparator = comparator;
-        }
-
-        @Override
-        public Optional<RunWithDuration> apply(List<RunWithDuration> input) {
-            return input.stream()
-                    .min(comparator);
-        }
-    }
-
-    private static class Max implements Function<List<RunWithDuration>, Optional<RunWithDuration>> {
-        private final Comparator<RunWithDuration> comparator;
-
-        private Max(Comparator<RunWithDuration> comparator) {
-            this.comparator = comparator;
-        }
-
-        @Override
-        public Optional<RunWithDuration> apply(List<RunWithDuration> input) {
-            return input.stream()
-                    .max(comparator);
-        }
-    }
 
 }

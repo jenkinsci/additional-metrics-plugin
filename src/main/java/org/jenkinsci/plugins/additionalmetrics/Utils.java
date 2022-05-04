@@ -27,13 +27,14 @@ package org.jenkinsci.plugins.additionalmetrics;
 import com.google.common.collect.Iterables;
 import hudson.model.Run;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.OptionalDouble;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 class Utils {
 
@@ -42,8 +43,7 @@ class Utils {
     }
 
     static Optional<Rate> rateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
-        List<? extends Run> filteredRuns = runs.stream()
-                .filter(preFilter)
+        List<? extends Run> filteredRuns = preFilter(runs, preFilter)
                 .collect(Collectors.toList());
 
         if (filteredRuns.isEmpty()) {
@@ -64,8 +64,7 @@ class Utils {
     }
 
     static Optional<Rate> timeRateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
-        List<? extends Run> filteredRuns = runs.stream()
-                .filter(preFilter)
+        List<? extends Run> filteredRuns = preFilter(runs, preFilter)
                 .collect(Collectors.toList());
 
         if (filteredRuns.isEmpty()) {
@@ -92,52 +91,29 @@ class Utils {
         return Optional.of(new Rate((double) accumulatedPredicateTime / (endTime - startTime)));
     }
 
-    static Optional<RunWithDuration> findRun(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction, Function<List<RunWithDuration>, Optional<RunWithDuration>> searchFunction) {
-        List<? extends Run> filteredRuns = runs.stream()
-                .filter(preFilter)
-                .collect(Collectors.toList());
-
-        if (filteredRuns.isEmpty()) {
-            return Optional.empty();
-        }
-
-        List<RunWithDuration> runWithDurationList = new ArrayList<>();
-
-        for (Run run : filteredRuns) {
-            long curDurationMs = durationFunction.applyAsLong(run);
-            if (curDurationMs > 0) {
-                runWithDurationList.add(new RunWithDuration(run, new Duration(curDurationMs)));
-            }
-        }
-
-        return searchFunction.apply(runWithDurationList);
+    static Optional<RunWithDuration> findRun(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction, BinaryOperator<RunWithDuration> operator) {
+        return preFilter(runs, preFilter)
+                .filter(r -> durationFunction.applyAsLong(r) > 0)
+                .map(r -> new RunWithDuration(r, new Duration(durationFunction.applyAsLong(r))))
+                .reduce(operator);
     }
 
     static Optional<Duration> averageDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
-        List<? extends Run> filteredRuns = runs.stream()
-                .filter(preFilter)
-                .collect(Collectors.toList());
+        OptionalDouble average = preFilter(runs, preFilter)
+                .filter(r -> durationFunction.applyAsLong(r) > 0)
+                .mapToLong(durationFunction)
+                .average();
 
-        if (filteredRuns.isEmpty()) {
+        if (average.isPresent()) {
+            return Optional.of(new Duration((long) average.getAsDouble()));
+        } else {
             return Optional.empty();
         }
+    }
 
-        int totalRuns = 0;
-        long totalDurations = 0;
-
-        for (Run run : filteredRuns) {
-            long curDurationMs = durationFunction.applyAsLong(run);
-            if (curDurationMs > 0) {
-                totalRuns++;
-                totalDurations += curDurationMs;
-            }
-        }
-
-        if (totalRuns == 0) {
-            return Optional.empty();
-        }
-
-        return Optional.of(new Duration(totalDurations / totalRuns));
+    private static Stream<? extends Run> preFilter(List<? extends Run> runs, Predicate<Run> preFilter) {
+        return runs.stream()
+                .filter(preFilter);
     }
 
 }
