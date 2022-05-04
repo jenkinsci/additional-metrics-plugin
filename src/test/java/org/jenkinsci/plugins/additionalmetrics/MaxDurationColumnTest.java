@@ -65,7 +65,7 @@ public class MaxDurationColumnTest {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
         project.setDefinition(sleepDefinition(1));
         project.scheduleBuild2(0).get();
-        project.setDefinition(sleepDefinition(3));
+        project.setDefinition(sleepDefinition(6));
         WorkflowRun run2 = project.scheduleBuild2(0).get();
 
         RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);
@@ -78,7 +78,7 @@ public class MaxDurationColumnTest {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoBuildsOneFailure");
         project.setDefinition(sleepDefinition(1));
         project.scheduleBuild2(0).get();
-        project.setDefinition(sleepThenFailDefinition(3));
+        project.setDefinition(sleepThenFailDefinition(6));
         WorkflowRun run2 = project.scheduleBuild2(0).get();
 
         RunWithDuration longestRun = maxDurationColumn.getLongestRun(project);

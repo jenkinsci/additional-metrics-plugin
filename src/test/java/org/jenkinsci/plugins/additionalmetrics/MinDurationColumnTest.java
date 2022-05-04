@@ -65,7 +65,7 @@ public class MinDurationColumnTest {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
         project.setDefinition(sleepDefinition(1));
         WorkflowRun run1 = project.scheduleBuild2(0).get();
-        project.setDefinition(sleepDefinition(3));
+        project.setDefinition(sleepDefinition(6));
         project.scheduleBuild2(0).get();
 
         RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
@@ -78,7 +78,7 @@ public class MinDurationColumnTest {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoBuildsOneFailure");
         project.setDefinition(sleepThenFailDefinition(1));
         WorkflowRun run1 = project.scheduleBuild2(0).get();
-        project.setDefinition(sleepDefinition(3));
+        project.setDefinition(sleepDefinition(6));
         project.scheduleBuild2(0).get();
 
         RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
