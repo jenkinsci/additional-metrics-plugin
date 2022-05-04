@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Chadi El Masri
+ * Copyright (c) 2022 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,11 +28,8 @@ import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.views.ListViewColumn;
-import hudson.views.ListViewColumnDescriptor;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import javax.annotation.Nonnull;
 
 import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
 import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
@@ -55,17 +52,10 @@ public class MaxSuccessDurationColumn extends ListViewColumn {
 
     @Extension
     @Symbol("maxSuccessDuration")
-    public static class DescriptorImpl extends ListViewColumnDescriptor {
+    public static class DescriptorImpl extends AdditionalMetricColumnDescriptor {
 
-        @Override
-        public boolean shownByDefault() {
-            return false;
-        }
-
-        @Nonnull
-        @Override
-        public String getDisplayName() {
-            return Messages.MaxSuccessDurationColumn_DisplayName();
+        public DescriptorImpl() {
+            super(Messages.MaxSuccessDurationColumn_DisplayName());
         }
 
     }

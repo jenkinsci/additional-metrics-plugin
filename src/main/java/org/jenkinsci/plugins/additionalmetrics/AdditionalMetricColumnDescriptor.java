@@ -24,40 +24,26 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import hudson.Extension;
-import hudson.model.Job;
-import hudson.model.Run;
-import hudson.views.ListViewColumn;
-import org.jenkinsci.Symbol;
-import org.kohsuke.stapler.DataBoundConstructor;
+import hudson.views.ListViewColumnDescriptor;
 
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
+import javax.annotation.Nonnull;
 
-public class MinDurationColumn extends ListViewColumn {
+abstract class AdditionalMetricColumnDescriptor extends ListViewColumnDescriptor {
 
-    @DataBoundConstructor
-    public MinDurationColumn() {
-        super();
+    private final String displayName;
+
+    AdditionalMetricColumnDescriptor(String displayName) {
+        this.displayName = displayName;
     }
 
-    public RunWithDuration getShortestRun(Job<? extends Job, ? extends Run> job) {
-        return findRun(
-                job.getBuilds(),
-                COMPLETED,
-                RUN_DURATION,
-                MIN
-        );
+    @Override
+    public boolean shownByDefault() {
+        return false;
     }
 
-    @Extension
-    @Symbol("minDuration")
-    public static class DescriptorImpl extends AdditionalMetricColumnDescriptor {
-
-        public DescriptorImpl() {
-            super(Messages.MinDurationColumn_DisplayName());
-        }
-
+    @Nonnull
+    @Override
+    public String getDisplayName() {
+        return displayName;
     }
-
 }
