@@ -47,7 +47,7 @@ public class FailureTimeRateColumn extends ListViewColumn {
                 job.getBuilds(),
                 COMPLETED,
                 NOT_SUCCESS
-        );
+        ).orElse(null);
     }
 
     @Extension

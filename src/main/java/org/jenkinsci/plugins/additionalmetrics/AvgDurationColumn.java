@@ -47,7 +47,7 @@ public class AvgDurationColumn extends ListViewColumn {
                 job.getBuilds(),
                 COMPLETED,
                 RUN_DURATION
-        );
+        ).orElse(null);
     }
 
     @Extension

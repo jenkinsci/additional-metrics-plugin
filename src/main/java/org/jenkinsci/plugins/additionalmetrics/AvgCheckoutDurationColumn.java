@@ -47,7 +47,7 @@ public class AvgCheckoutDurationColumn extends ListViewColumn {
                 job.getBuilds(),
                 COMPLETED,
                 RUN_CHECKOUT_DURATION
-        );
+        ).orElse(null);
     }
 
     @Extension

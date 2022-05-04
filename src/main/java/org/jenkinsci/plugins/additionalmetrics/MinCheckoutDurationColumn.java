@@ -46,7 +46,7 @@ public class MinCheckoutDurationColumn extends ListViewColumn {
                 COMPLETED,
                 RUN_CHECKOUT_DURATION,
                 MIN
-        );
+        ).orElse(null);
     }
 
     @Extension

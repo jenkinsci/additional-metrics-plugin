@@ -47,7 +47,7 @@ public class MinDurationColumn extends ListViewColumn {
                 COMPLETED,
                 RUN_DURATION,
                 MIN
-        );
+        ).orElse(null);
     }
 
     @Extension

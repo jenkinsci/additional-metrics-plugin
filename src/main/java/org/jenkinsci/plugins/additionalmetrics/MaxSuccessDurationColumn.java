@@ -47,7 +47,7 @@ public class MaxSuccessDurationColumn extends ListViewColumn {
                 SUCCESS,
                 RUN_DURATION,
                 MAX
-        );
+        ).orElse(null);
     }
 
     @Extension

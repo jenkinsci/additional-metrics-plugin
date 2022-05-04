@@ -27,9 +27,9 @@ package org.jenkinsci.plugins.additionalmetrics;
 import com.google.common.collect.Iterables;
 import hudson.model.Run;
 
-import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
@@ -41,14 +41,13 @@ class Utils {
         // utility class
     }
 
-    @CheckForNull
-    static Rate rateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
+    static Optional<Rate> rateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
         List<? extends Run> filteredRuns = runs.stream()
                 .filter(preFilter)
                 .collect(Collectors.toList());
 
-        if (Iterables.isEmpty(filteredRuns)) {
-            return null;
+        if (filteredRuns.isEmpty()) {
+            return Optional.empty();
         }
 
         int totalRuns = 0;
@@ -61,17 +60,16 @@ class Utils {
             }
         }
 
-        return new Rate((double) predicateApplicableRuns / totalRuns);
+        return Optional.of(new Rate((double) predicateApplicableRuns / totalRuns));
     }
 
-    @CheckForNull
-    static Rate timeRateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
+    static Optional<Rate> timeRateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
         List<? extends Run> filteredRuns = runs.stream()
                 .filter(preFilter)
                 .collect(Collectors.toList());
 
-        if (Iterables.isEmpty(filteredRuns)) {
-            return null;
+        if (filteredRuns.isEmpty()) {
+            return Optional.empty();
         }
 
         Run firstRun = Iterables.getLast(filteredRuns, null);
@@ -91,17 +89,16 @@ class Utils {
             previousTime = runStartTime;
         }
 
-        return new Rate((double) accumulatedPredicateTime / (endTime - startTime));
+        return Optional.of(new Rate((double) accumulatedPredicateTime / (endTime - startTime)));
     }
 
-    @CheckForNull
-    static RunWithDuration findRun(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction, Function<List<RunWithDuration>, RunWithDuration> searchFunction) {
+    static Optional<RunWithDuration> findRun(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction, Function<List<RunWithDuration>, Optional<RunWithDuration>> searchFunction) {
         List<? extends Run> filteredRuns = runs.stream()
                 .filter(preFilter)
                 .collect(Collectors.toList());
 
-        if (Iterables.isEmpty(filteredRuns)) {
-            return null;
+        if (filteredRuns.isEmpty()) {
+            return Optional.empty();
         }
 
         List<RunWithDuration> runWithDurationList = new ArrayList<>();
@@ -113,21 +110,16 @@ class Utils {
             }
         }
 
-        if (runWithDurationList.isEmpty()) {
-            return null;
-        }
-
         return searchFunction.apply(runWithDurationList);
     }
 
-    @CheckForNull
-    static Duration averageDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
+    static Optional<Duration> averageDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
         List<? extends Run> filteredRuns = runs.stream()
                 .filter(preFilter)
                 .collect(Collectors.toList());
 
-        if (Iterables.isEmpty(filteredRuns)) {
-            return null;
+        if (filteredRuns.isEmpty()) {
+            return Optional.empty();
         }
 
         int totalRuns = 0;
@@ -142,10 +134,10 @@ class Utils {
         }
 
         if (totalRuns == 0) {
-            return null;
+            return Optional.empty();
         }
 
-        return new Duration(totalDurations / totalRuns);
+        return Optional.of(new Duration(totalDurations / totalRuns));
     }
 
 }

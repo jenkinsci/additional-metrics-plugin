@@ -47,7 +47,7 @@ public class MaxCheckoutDurationColumn extends ListViewColumn {
                 COMPLETED,
                 RUN_CHECKOUT_DURATION,
                 MAX
-        );
+        ).orElse(null);
     }
 
     @Extension
