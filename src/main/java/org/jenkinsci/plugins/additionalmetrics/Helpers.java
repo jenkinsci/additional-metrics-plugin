@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Chadi El Masri
+ * Copyright (c) 2022 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,11 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import com.google.common.collect.Ordering;
 import hudson.model.Result;
 import hudson.model.Run;
 
-import java.io.Serializable;
+import java.util.Comparator;
+import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
@@ -42,45 +42,42 @@ class Helpers {
     static final Predicate<Run> NOT_SUCCESS = SUCCESS.negate();
     static final Predicate<Run> COMPLETED = run -> !run.isBuilding();
 
-    private static final Ordering<RunWithDuration> DURATION_ORDERING = new DurationOrdering();
+    private static final Comparator<RunWithDuration> DURATION_ORDERING = Comparator.comparing(runWithDuration -> runWithDuration.getDuration().getAsLong());
 
-    static final Function<Iterable<RunWithDuration>, RunWithDuration> MIN = new Min(DURATION_ORDERING);
-    static final Function<Iterable<RunWithDuration>, RunWithDuration> MAX = new Max(DURATION_ORDERING);
+    static final Function<List<RunWithDuration>, RunWithDuration> MIN = new Min(DURATION_ORDERING);
+    static final Function<List<RunWithDuration>, RunWithDuration> MAX = new Max(DURATION_ORDERING);
 
     private Helpers() {
         // utility class
     }
 
-    private static class DurationOrdering extends Ordering<RunWithDuration> implements Serializable {
+    private static class Min implements Function<List<RunWithDuration>, RunWithDuration> {
+        private final Comparator<RunWithDuration> comparator;
+
+        private Min(Comparator<RunWithDuration> comparator) {
+            this.comparator = comparator;
+        }
+
         @Override
-        public int compare(RunWithDuration left, RunWithDuration right) {
-            return Long.compare(left.getDuration().getAsLong(), right.getDuration().getAsLong());
+        public RunWithDuration apply(List<RunWithDuration> input) {
+            return input.stream()
+                    .min(comparator)
+                    .get();
         }
     }
 
-    private static class Min implements Function<Iterable<RunWithDuration>, RunWithDuration> {
-        private final Ordering<RunWithDuration> ordering;
+    private static class Max implements Function<List<RunWithDuration>, RunWithDuration> {
+        private final Comparator<RunWithDuration> comparator;
 
-        private Min(Ordering<RunWithDuration> ordering) {
-            this.ordering = ordering;
+        private Max(Comparator<RunWithDuration> comparator) {
+            this.comparator = comparator;
         }
 
         @Override
-        public RunWithDuration apply(Iterable<RunWithDuration> input) {
-            return ordering.min(input);
-        }
-    }
-
-    private static class Max implements Function<Iterable<RunWithDuration>, RunWithDuration> {
-        private final Ordering<RunWithDuration> ordering;
-
-        private Max(Ordering<RunWithDuration> ordering) {
-            this.ordering = ordering;
-        }
-
-        @Override
-        public RunWithDuration apply(Iterable<RunWithDuration> input) {
-            return ordering.max(input);
+        public RunWithDuration apply(List<RunWithDuration> input) {
+            return input.stream()
+                    .max(comparator)
+                    .get();
         }
     }
 

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Chadi El Masri
+ * Copyright (c) 2022 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
-
+import java.util.stream.Collectors;
 
 class Utils {
 
@@ -42,8 +42,10 @@ class Utils {
     }
 
     @CheckForNull
-    static Rate rateOf(Iterable<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
-        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter::test);
+    static Rate rateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
+        List<? extends Run> filteredRuns = runs.stream()
+                .filter(preFilter)
+                .collect(Collectors.toList());
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
@@ -63,8 +65,10 @@ class Utils {
     }
 
     @CheckForNull
-    static Rate timeRateOf(Iterable<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
-        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter::test);
+    static Rate timeRateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
+        List<? extends Run> filteredRuns = runs.stream()
+                .filter(preFilter)
+                .collect(Collectors.toList());
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
@@ -91,8 +95,10 @@ class Utils {
     }
 
     @CheckForNull
-    static RunWithDuration findRun(Iterable<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction, Function<Iterable<RunWithDuration>, RunWithDuration> searchFunction) {
-        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter::test);
+    static RunWithDuration findRun(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction, Function<List<RunWithDuration>, RunWithDuration> searchFunction) {
+        List<? extends Run> filteredRuns = runs.stream()
+                .filter(preFilter)
+                .collect(Collectors.toList());
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
@@ -115,8 +121,10 @@ class Utils {
     }
 
     @CheckForNull
-    static Duration averageDuration(Iterable<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
-        Iterable<? extends Run> filteredRuns = Iterables.filter(runs, preFilter::test);
+    static Duration averageDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
+        List<? extends Run> filteredRuns = runs.stream()
+                .filter(preFilter)
+                .collect(Collectors.toList());
 
         if (Iterables.isEmpty(filteredRuns)) {
             return null;
