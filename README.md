@@ -13,6 +13,8 @@ Provides additional metrics via columns in Jenkins' List View.
 - Success and Failure rates.
 - Success and Failure time rates (ie Uptime and Downtime).
 
+![](images/screenshot.png)
+
 ### REST API
 All provided metrics are also exposed in the Job's REST API as a job Action.
 
