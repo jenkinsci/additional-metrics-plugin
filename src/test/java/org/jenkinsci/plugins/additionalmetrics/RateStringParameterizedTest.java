@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2018 Chadi El Masri
+ * Copyright (c) 2022 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -53,7 +53,7 @@ public class RateStringParameterizedTest {
                         {0.333333, "33.33%"},
                         {0.5, "50.00%"},
                         {0.666667, "66.67%"},
-                        {1, "100.00%"}
+                        {1, "100.00%"},
                 }
         );
     }
