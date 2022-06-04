@@ -99,17 +99,32 @@ class Utils {
     }
 
     static Optional<Duration> averageDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
-        OptionalDouble average = preFilter(runs, preFilter)
+        OptionalDouble average = MathCommons.average(preFilter(runs, preFilter)
                 .filter(r -> durationFunction.applyAsLong(r) > 0)
                 .mapToLong(durationFunction)
-                .average();
-
+                .boxed()
+                .collect(Collectors.toList()));
         if (average.isPresent()) {
             return Optional.of(new Duration((long) average.getAsDouble()));
         } else {
             return Optional.empty();
         }
     }
+
+    static Optional<Duration> standardDeviationDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
+        List durations = preFilter(runs, preFilter)
+                .filter(r -> durationFunction.applyAsLong(r) > 0)
+                .mapToLong(durationFunction)
+                .boxed()
+                .collect(Collectors.toList());
+
+        OptionalDouble std = MathCommons.standardDeviation(durations);
+        if (!std.isPresent()) {
+            return Optional.empty();
+        }
+        return Optional.of(new Duration((long) std.getAsDouble()));
+    }
+
 
     private static Stream<? extends Run> preFilter(List<? extends Run> runs, Predicate<Run> preFilter) {
         return runs.stream()
