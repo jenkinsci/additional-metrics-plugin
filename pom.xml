@@ -22,8 +22,7 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -54,11 +53,20 @@
         </developer>
     </developers>
 
+    <scm>
+        <connection>scm:git:git://github.com/${gitHubRepo}.git</connection>
+        <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
+        <tag>${scmTag}</tag>
+        <url>https://github.com/${gitHubRepo}</url>
+    </scm>
+
     <properties>
         <changelist>999999-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/additional-metrics-plugin</gitHubRepo>
         <jenkins.version>2.289.3</jenkins.version>
         <java.level>11</java.level>
+        <spotbugs.effort>Max</spotbugs.effort>
+        <spotless.version>2.22.5</spotless.version>
     </properties>
 
     <dependencyManagement>
@@ -120,13 +128,6 @@
         </dependency>
     </dependencies>
 
-    <scm>
-        <connection>scm:git:git://github.com/${gitHubRepo}.git</connection>
-        <developerConnection>scm:git:git@github.com:${gitHubRepo}.git</developerConnection>
-        <url>https://github.com/${gitHubRepo}</url>
-        <tag>${scmTag}</tag>
-    </scm>
-
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
@@ -140,5 +141,48 @@
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                    <formats>
+                        <format>
+                            <includes>
+                                <include>src/main/java/**/*.java</include>
+                                <include>src/test/java/**/*.java</include>
+                                <include>src/main/resources/**/*.jelly</include>
+                                <include>.gitignore</include>
+                            </includes>
+                            <trimTrailingWhitespace/>
+                            <endWithNewline/>
+                            <indent>
+                                <spaces>true</spaces>
+                            </indent>
+                        </format>
+                    </formats>
+                    <pom>
+                        <sortPom>
+                            <nrOfIndentSpace>4</nrOfIndentSpace>
+                            <sortDependencies>scope</sortDependencies>
+                            <lineSeparator>\n</lineSeparator>
+                            <expandEmptyElements>false</expandEmptyElements>
+                        </sortPom>
+                    </pom>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
