@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2019 Chadi El Masri
+ * Copyright (c) 2022 Chadi El Masri, Oussama Ben Ghorbel
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -164,6 +164,28 @@ public class JobMetrics {
             return failureTimeRate.getAsDouble();
         }
         return 0.0;
+    }
+
+    @Exported
+    public long getStandardDeviationDuration() {
+        StdevDurationColumn stdevDurationColumn = new StdevDurationColumn();
+        Duration standardDeviationDuration = stdevDurationColumn.getStdevDuration(job);
+        if (standardDeviationDuration != null) {
+            return standardDeviationDuration.getAsLong();
+        }
+
+        return 0;
+    }
+
+    @Exported
+    public long getStandardDeviationSuccessDuration() {
+        StdevSuccessDurationColumn stdevSuccessDurationColumn = new StdevSuccessDurationColumn();
+        Duration standardDeviationSuccessDuration = stdevSuccessDurationColumn.getStdevSuccessDuration(job);
+        if (standardDeviationSuccessDuration != null) {
+            return standardDeviationSuccessDuration.getAsLong();
+        }
+
+        return 0;
     }
 
 }

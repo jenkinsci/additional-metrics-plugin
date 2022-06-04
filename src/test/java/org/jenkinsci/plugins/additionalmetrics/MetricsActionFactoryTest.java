@@ -71,7 +71,9 @@ public class MetricsActionFactoryTest {
                             "minDuration", isEqualTo(0),
                             "minSuccessDuration", isEqualTo(0),
                             "successRate", isEqualTo(0.0),
-                            "successTimeRate", isEqualTo(0.0)
+                            "successTimeRate", isEqualTo(0.0),
+                            "standardDeviationDuration", isEqualTo(0),
+                            "standardDeviationSuccessDuration", isEqualTo(0)
                     )
             );
         }
@@ -82,6 +84,7 @@ public class MetricsActionFactoryTest {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneSuccessBuild");
         project.setDefinition(successDefinition());
         project.scheduleBuild2(0).get();
+
 
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
             XmlPage xmlPage = webClient.goToXml("api/xml?depth=3&xpath=/hudson/job[name='ProjectWithOneSuccessBuild']/action/jobMetrics");
@@ -98,7 +101,9 @@ public class MetricsActionFactoryTest {
                             "minDuration", isGreaterThan(0),
                             "minSuccessDuration", isGreaterThan(0),
                             "successRate", isEqualTo(1.0),
-                            "successTimeRate", isEqualTo(1.0)
+                            "successTimeRate", isEqualTo(1.0),
+                            "standardDeviationDuration", isEqualTo(0),
+                            "standardDeviationSuccessDuration", isEqualTo(0)
                     )
             );
         }

@@ -8,7 +8,7 @@ Additional Metrics Plugin
 Provides additional metrics via columns in Jenkins' List View.
 
 ### Provided Metrics
-- Minimum, Maximum, and Average build times for all, or only successful builds.
+- Minimum, Maximum, Average, and Standard Deviation build times for all, or only successful builds.
 - Minimum, Maximum, and Average checkout times for Pipeline builds.
 - Success and Failure rates.
 - Success and Failure time rates (ie Uptime and Downtime).
@@ -38,19 +38,21 @@ Using XPath, it is possible to get the metrics for one project. You may need to 
 ```
 <?xml version="1.0" encoding="UTF-8"?>
 <jobMetrics>
-   <avgCheckoutDuration>7890</avgCheckoutDuration>
-   <avgDuration>59767</avgDuration>
-   <avgSuccessDuration>62901</avgSuccessDuration>
-   <failureRate>0.08333333333333333</failureRate>
-   <failureTimeRate>1.3401290241412837E-5</failureTimeRate>
-   <maxCheckoutDuration>45036</maxCheckoutDuration>
-   <maxDuration>445391</maxDuration>
-   <maxSuccessDuration>445391</maxSuccessDuration>
-   <minCheckoutDuration>3060</minCheckoutDuration>
-   <minDuration>19323</minDuration>
-   <minSuccessDuration>19323</minSuccessDuration>
-   <successRate>0.9166666666666666</successRate>
-   <successTimeRate>0.9999865987097586</successTimeRate>
+   <avgCheckoutDuration>0</avgCheckoutDuration>
+   <avgDuration>446</avgDuration>
+   <avgSuccessDuration>240</avgSuccessDuration>
+   <failureRate>0.125</failureRate>
+   <failureTimeRate>0.00000711702773729547-5</failureTimeRate>
+   <maxCheckoutDuration>0</maxCheckoutDuration>
+   <maxDuration>3024</maxDuration>
+   <maxSuccessDuration>1961</maxSuccessDuration>
+   <minCheckoutDuration>0</minCheckoutDuration>
+   <minDuration>45</minDuration>
+   <minSuccessDuration>45</minSuccessDuration>
+   <standardDeviationDuration>819</standardDeviationDuration>
+   <standardDeviationSuccessDuration>493</standardDeviationSuccessDuration>
+   <successRate>0.875</successRate>
+   <successTimeRate>0.9999928829722644</successTimeRate>
 </jobMetrics>
 ```
 
@@ -83,6 +85,8 @@ You will get an output similar to the below (modified for clarity):
             "minCheckoutDuration": 8226,
             "minDuration": 394148,
             "minSuccessDuration": 394148,
+	    "standardDeviationDuration": 42447,
+            "standardDeviationSuccessDuration": 71238,
             "successRate": 0.25,
             "successTimeRate": 0.9050665090992799
           }
@@ -107,6 +111,8 @@ You will get an output similar to the below (modified for clarity):
             "minCheckoutDuration": 24766,
             "minDuration": 189773,
             "minSuccessDuration": 189773,
+	    "standardDeviationDuration": 8089,
+	    "standardDeviationSuccessDuration": 3014,
             "successRate": 1,
             "successTimeRate": 1
           }
