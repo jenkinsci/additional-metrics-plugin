@@ -40,6 +40,7 @@ public class MinCheckoutDurationColumn extends ListViewColumn {
         super();
     }
 
+    @Metric
     public RunWithDuration getShortestCheckoutRun(Job<? extends Job, ? extends Run> job) {
         return Utils.findRun(
                 job.getBuilds(),

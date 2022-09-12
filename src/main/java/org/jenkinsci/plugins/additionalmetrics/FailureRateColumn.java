@@ -42,6 +42,7 @@ public class FailureRateColumn extends ListViewColumn {
         super();
     }
 
+    @Metric
     public Rate getFailureRate(Job<? extends Job, ? extends Run> job) {
         return rateOf(
                 job.getBuilds(),

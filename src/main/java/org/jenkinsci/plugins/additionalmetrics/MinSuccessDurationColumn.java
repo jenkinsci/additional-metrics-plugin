@@ -41,6 +41,7 @@ public class MinSuccessDurationColumn extends ListViewColumn {
         super();
     }
 
+    @Metric
     public RunWithDuration getShortestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),

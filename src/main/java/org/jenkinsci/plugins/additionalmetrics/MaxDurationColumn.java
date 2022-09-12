@@ -41,6 +41,7 @@ public class MaxDurationColumn extends ListViewColumn {
         super();
     }
 
+    @Metric
     public RunWithDuration getLongestRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),

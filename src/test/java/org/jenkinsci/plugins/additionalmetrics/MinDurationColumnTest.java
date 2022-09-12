@@ -52,15 +52,6 @@ public class MinDurationColumnTest {
     }
 
     @Test
-    public void no_runs_should_return_no_data() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
-
-        RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
-
-        assertNull(shortestRun);
-    }
-
-    @Test
     public void two_successful_runs_should_return_the_shortest() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
         project.setDefinition(sleepDefinition(1));
@@ -106,19 +97,6 @@ public class MinDurationColumnTest {
         RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
 
         assertSame(run, shortestRun.getRun());
-    }
-
-    @Test
-    public void building_runs_should_be_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
-        project.setDefinition(slowDefinition());
-        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
-
-        RunWithDuration shortestRun = minDurationColumn.getShortestRun(project);
-
-        assertNull(shortestRun);
-
-        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

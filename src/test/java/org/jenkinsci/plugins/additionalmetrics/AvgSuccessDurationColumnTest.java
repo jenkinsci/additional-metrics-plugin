@@ -51,15 +51,6 @@ public class AvgSuccessDurationColumnTest {
     }
 
     @Test
-    public void no_runs_should_return_no_data() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
-
-        Duration avgDuration = avgSuccessDurationColumn.getAverageSuccessDuration(project);
-
-        assertNull(avgDuration);
-    }
-
-    @Test
     public void two_successful_runs_should_return_their_average_duration() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
         project.setDefinition(sleepDefinition(1));
@@ -92,19 +83,6 @@ public class AvgSuccessDurationColumnTest {
         Duration avgDuration = avgSuccessDurationColumn.getAverageSuccessDuration(project);
 
         assertNull(avgDuration);
-    }
-
-    @Test
-    public void building_runs_should_be_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
-        project.setDefinition(slowDefinition());
-        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
-
-        Duration avgDuration = avgSuccessDurationColumn.getAverageSuccessDuration(project);
-
-        assertNull(avgDuration);
-
-        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

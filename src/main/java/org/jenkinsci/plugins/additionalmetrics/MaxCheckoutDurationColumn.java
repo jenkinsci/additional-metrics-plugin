@@ -41,6 +41,7 @@ public class MaxCheckoutDurationColumn extends ListViewColumn {
         super();
     }
 
+    @Metric
     public RunWithDuration getLongestCheckoutRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),
