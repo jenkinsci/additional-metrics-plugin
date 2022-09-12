@@ -52,15 +52,6 @@ public class MaxSuccessDurationColumnTest {
     }
 
     @Test
-    public void no_runs_should_return_no_data() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
-
-        RunWithDuration longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
-
-        assertNull(longestRun);
-    }
-
-    @Test
     public void two_successful_runs_should_return_the_longest() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
         project.setDefinition(sleepDefinition(1));
@@ -93,19 +84,6 @@ public class MaxSuccessDurationColumnTest {
         RunWithDuration longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
 
         assertNull(longestRun);
-    }
-
-    @Test
-    public void building_runs_should_be_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
-        project.setDefinition(slowDefinition());
-        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
-
-        RunWithDuration longestRun = maxSuccessDurationColumn.getLongestSuccessfulRun(project);
-
-        assertNull(longestRun);
-
-        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

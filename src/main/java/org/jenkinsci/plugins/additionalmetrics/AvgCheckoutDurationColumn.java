@@ -42,6 +42,7 @@ public class AvgCheckoutDurationColumn extends ListViewColumn {
         super();
     }
 
+    @Metric
     public Duration getAverageCheckoutDuration(Job<? extends Job, ? extends Run> job) {
         return averageDuration(
                 job.getBuilds(),

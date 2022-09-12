@@ -41,6 +41,7 @@ public class MinDurationColumn extends ListViewColumn {
         super();
     }
 
+    @Metric
     public RunWithDuration getShortestRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),

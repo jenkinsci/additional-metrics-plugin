@@ -42,6 +42,7 @@ public class SuccessTimeRateColumn extends ListViewColumn {
         super();
     }
 
+    @Metric
     public Rate getSuccessTimeRate(Job<? extends Job, ? extends Run> job) {
         return timeRateOf(
                 job.getBuilds(),

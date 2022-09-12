@@ -37,7 +37,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class AvgDurationColumnTest {
     @ClassRule
@@ -48,15 +49,6 @@ public class AvgDurationColumnTest {
     @Before
     public void before() {
         avgDurationColumn = new AvgDurationColumn();
-    }
-
-    @Test
-    public void no_runs_should_return_no_data() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
-
-        Duration avgDuration = avgDurationColumn.getAverageDuration(project);
-
-        assertNull(avgDuration);
     }
 
     @Test
@@ -105,19 +97,6 @@ public class AvgDurationColumnTest {
         Duration avgDuration = avgDurationColumn.getAverageDuration(project);
 
         assertEquals(run.getDuration(), avgDuration.getAsLong());
-    }
-
-    @Test
-    public void building_runs_should_be_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
-        project.setDefinition(slowDefinition());
-        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
-
-        Duration avgDuration = avgDurationColumn.getAverageDuration(project);
-
-        assertNull(avgDuration);
-
-        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

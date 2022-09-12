@@ -55,15 +55,6 @@ public class MinCheckoutDurationColumnTest {
     }
 
     @Test
-    public void no_runs_should_return_no_data() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
-
-        RunWithDuration shortestCheckoutRun = minCheckoutDurationColumn.getShortestCheckoutRun(project);
-
-        assertNull(shortestCheckoutRun);
-    }
-
-    @Test
     public void one_run_with_checkout_should_return_checkout() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithCheckout");
         project.setDefinition(checkoutDefinition());
@@ -94,19 +85,6 @@ public class MinCheckoutDurationColumnTest {
         RunWithDuration shortestCheckoutRun = minCheckoutDurationColumn.getShortestCheckoutRun(project);
 
         assertSame(run, shortestCheckoutRun.getRun());
-    }
-
-    @Test
-    public void building_runs_should_be_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
-        project.setDefinition(slowDefinition());
-        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
-
-        RunWithDuration shortestCheckoutRun = minCheckoutDurationColumn.getShortestCheckoutRun(project);
-
-        assertNull(shortestCheckoutRun);
-
-        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

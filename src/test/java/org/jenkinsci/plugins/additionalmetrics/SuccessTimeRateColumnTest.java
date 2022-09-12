@@ -27,7 +27,6 @@ package org.jenkinsci.plugins.additionalmetrics;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -36,10 +35,10 @@ import org.jvnet.hudson.test.JenkinsRule;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThan;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.failingDefinition;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.successDefinition;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class SuccessTimeRateColumnTest {
     @ClassRule
@@ -50,15 +49,6 @@ public class SuccessTimeRateColumnTest {
     @Before
     public void before() {
         successTimeRateColumn = new SuccessTimeRateColumn();
-    }
-
-    @Test
-    public void no_runs_should_return_no_data() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
-
-        Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
-
-        assertNull(successTimeRate);
     }
 
     @Test
@@ -96,19 +86,6 @@ public class SuccessTimeRateColumnTest {
 
         assertThat(successTimeRate.getAsDouble(), greaterThan(0.0));
         assertThat(successTimeRate.getAsDouble(), lessThan(1.0));
-    }
-
-    @Test
-    public void building_runs_should_be_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
-        project.setDefinition(slowDefinition());
-        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
-
-        Rate successTimeRate = successTimeRateColumn.getSuccessTimeRate(project);
-
-        assertNull(successTimeRate);
-
-        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

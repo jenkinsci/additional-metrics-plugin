@@ -41,6 +41,7 @@ public class MaxSuccessDurationColumn extends ListViewColumn {
         super();
     }
 
+    @Metric
     public RunWithDuration getLongestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
         return findRun(
                 job.getBuilds(),

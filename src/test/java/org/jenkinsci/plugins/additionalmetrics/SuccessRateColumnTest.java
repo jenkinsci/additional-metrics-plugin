@@ -27,7 +27,6 @@ package org.jenkinsci.plugins.additionalmetrics;
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -36,7 +35,6 @@ import org.jvnet.hudson.test.JenkinsRule;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class SuccessRateColumnTest {
     @ClassRule
@@ -50,15 +48,6 @@ public class SuccessRateColumnTest {
     }
 
     @Test
-    public void no_runs_should_return_no_data() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
-
-        Rate successRate = successRateColumn.getSuccessRate(project);
-
-        assertNull(successRate);
-    }
-
-    @Test
     public void one_failed_job_over_two_success_rate_should_be_50_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneOverTwoSuccess");
         project.setDefinition(failingDefinition());
@@ -69,19 +58,6 @@ public class SuccessRateColumnTest {
         Rate successRate = successRateColumn.getSuccessRate(project);
 
         assertEquals(0.5, successRate.getAsDouble(), 0);
-    }
-
-    @Test
-    public void building_runs_should_be_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
-        project.setDefinition(slowDefinition());
-        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
-
-        Rate successRate = successRateColumn.getSuccessRate(project);
-
-        assertNull(successRate);
-
-        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test

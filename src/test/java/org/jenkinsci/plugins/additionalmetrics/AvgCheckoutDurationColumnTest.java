@@ -29,7 +29,6 @@ import hudson.model.FreeStyleProject;
 import hudson.model.ListView;
 import hudson.plugins.git.GitSCM;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -51,15 +50,6 @@ public class AvgCheckoutDurationColumnTest {
     @Before
     public void before() {
         avgCheckoutDurationColumn = new AvgCheckoutDurationColumn();
-    }
-
-    @Test
-    public void no_runs_should_return_no_data() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
-
-        Duration avgDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(project);
-
-        assertNull(avgDuration);
     }
 
     @Test
@@ -95,19 +85,6 @@ public class AvgCheckoutDurationColumnTest {
         Duration avgDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(project);
 
         assertThat(avgDuration.getAsLong(), greaterThan(0L));
-    }
-
-    @Test
-    public void building_runs_should_be_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
-        project.setDefinition(slowDefinition());
-        WorkflowRun workflowRun = project.scheduleBuild2(0).waitForStart();
-
-        Duration avgDuration = avgCheckoutDurationColumn.getAverageCheckoutDuration(project);
-
-        assertNull(avgDuration);
-
-        Utilities.terminateWorkflowRun(workflowRun);
     }
 
     @Test
