@@ -28,7 +28,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.47</version>
+        <version>4.48</version>
     </parent>
 
     <artifactId>additional-metrics</artifactId>
@@ -71,7 +71,7 @@
         <jenkins.version>2.289.3</jenkins.version>
         <java.level>11</java.level>
         <spotbugs.effort>Max</spotbugs.effort>
-        <spotless.version>2.22.5</spotless.version>
+        <spotless.version>2.27.2</spotless.version>
     </properties>
 
     <dependencyManagement>
@@ -176,6 +176,9 @@
                             </indent>
                         </format>
                     </formats>
+                    <java>
+                        <removeUnusedImports/>
+                    </java>
                     <pom>
                         <sortPom>
                             <nrOfIndentSpace>4</nrOfIndentSpace>
