@@ -28,7 +28,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.48</version>
+        <version>4.50</version>
     </parent>
 
     <artifactId>additional-metrics</artifactId>
@@ -37,6 +37,12 @@
 
     <name>Additional Metrics Plugin</name>
     <url>https://github.com/jenkinsci/additional-metrics-plugin</url>
+
+    <inceptionYear>2018</inceptionYear>
+
+    <organization>
+        <name>Chadi El Masri</name>
+    </organization>
 
     <licenses>
         <license>
@@ -178,6 +184,10 @@
                     </formats>
                     <java>
                         <removeUnusedImports/>
+                        <formatAnnotations/>
+                        <licenseHeader>
+                            <file>${project.basedir}/.java-license-header</file>
+                        </licenseHeader>
                     </java>
                     <pom>
                         <sortPom>
