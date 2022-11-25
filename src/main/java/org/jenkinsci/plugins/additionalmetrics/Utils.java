@@ -31,9 +31,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 class Utils {
@@ -99,32 +101,26 @@ class Utils {
     }
 
     static Optional<Duration> averageDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
-        OptionalDouble average = MathCommons.average(preFilter(runs, preFilter)
+        return durationFunction(runs, preFilter, durationFunction, LongStream::average);
+    }
+
+    static Optional<Duration> stdDevDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
+        return durationFunction(runs, preFilter, durationFunction, longStream -> MathCommons.standardDeviation(longStream.boxed().collect(Collectors.toList())));
+    }
+
+    private static Optional<Duration> durationFunction(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction, Function<LongStream, OptionalDouble> durationCollector) {
+        LongStream longStream = preFilter(runs, preFilter)
                 .filter(r -> durationFunction.applyAsLong(r) > 0)
-                .mapToLong(durationFunction)
-                .boxed()
-                .collect(Collectors.toList()));
-        if (average.isPresent()) {
-            return Optional.of(new Duration((long) average.getAsDouble()));
+                .mapToLong(durationFunction);
+
+        OptionalDouble val = durationCollector.apply(longStream);
+
+        if (val.isPresent()) {
+            return Optional.of(new Duration((long) val.getAsDouble()));
         } else {
             return Optional.empty();
         }
     }
-
-    static Optional<Duration> standardDeviationDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
-        List durations = preFilter(runs, preFilter)
-                .filter(r -> durationFunction.applyAsLong(r) > 0)
-                .mapToLong(durationFunction)
-                .boxed()
-                .collect(Collectors.toList());
-
-        OptionalDouble std = MathCommons.standardDeviation(durations);
-        if (!std.isPresent()) {
-            return Optional.empty();
-        }
-        return Optional.of(new Duration((long) std.getAsDouble()));
-    }
-
 
     private static Stream<? extends Run> preFilter(List<? extends Run> runs, Predicate<Run> preFilter) {
         return runs.stream()
