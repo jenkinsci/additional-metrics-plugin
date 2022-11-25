@@ -187,4 +187,14 @@ public class JobMetrics {
 
         return 0;
     }
+
+    @Exported
+    public double getUnstableRate() {
+        UnstableRateColumn unstableRateColumn = new UnstableRateColumn();
+        Rate unstableRate = unstableRateColumn.getUnstableRate(job);
+        if (unstableRate != null) {
+            return unstableRate.getAsDouble();
+        }
+        return 0.0;
+    }
 }

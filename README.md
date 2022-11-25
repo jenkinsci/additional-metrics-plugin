@@ -10,7 +10,7 @@ Provides additional metrics via columns in Jenkins' List View.
 ### Provided Metrics
 - Minimum, Maximum, Average, and Standard Deviation build times for all, or only successful builds.
 - Minimum, Maximum, and Average checkout times for Pipeline builds.
-- Success and Failure rates.
+- Success, Failure, and Unstable rates.
 - Success and Failure time rates (ie Uptime and Downtime).
 
 ![](images/screenshot.png)
@@ -53,6 +53,7 @@ Using XPath, it is possible to get the metrics for one project. You may need to 
    <standardDeviationSuccessDuration>493</standardDeviationSuccessDuration>
    <successRate>0.875</successRate>
    <successTimeRate>0.9999928829722644</successTimeRate>
+   <unstableRate>0.875</unstableRate>
 </jobMetrics>
 ```
 
@@ -88,7 +89,8 @@ You will get an output similar to the below (modified for clarity):
 	    "standardDeviationDuration": 42447,
             "standardDeviationSuccessDuration": 71238,
             "successRate": 0.25,
-            "successTimeRate": 0.9050665090992799
+            "successTimeRate": 0.9050665090992799, 
+            "unstableRate": 0
           }
         }
       ],
@@ -114,7 +116,8 @@ You will get an output similar to the below (modified for clarity):
 	    "standardDeviationDuration": 8089,
 	    "standardDeviationSuccessDuration": 3014,
             "successRate": 1,
-            "successTimeRate": 1
+            "successTimeRate": 1, 
+            "unstableRate": 0
           }
         }
       ],

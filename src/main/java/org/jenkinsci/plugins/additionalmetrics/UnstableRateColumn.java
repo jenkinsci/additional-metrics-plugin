@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2022 Chadi El Masri
+ * Copyright (c) 2023 Chadi El Masri
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,30 +24,35 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import hudson.model.Result;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.UNSTABLE;
+import static org.jenkinsci.plugins.additionalmetrics.Utils.rateOf;
+
+import hudson.Extension;
+import hudson.model.Job;
 import hudson.model.Run;
-import java.util.Comparator;
-import java.util.function.BinaryOperator;
-import java.util.function.Predicate;
-import java.util.function.ToLongFunction;
+import hudson.views.ListViewColumn;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
 
-class Helpers {
+public class UnstableRateColumn extends ListViewColumn {
 
-    static final ToLongFunction<Run> RUN_DURATION = Run::getDuration;
-    static final ToLongFunction<Run> RUN_CHECKOUT_DURATION = CheckoutDuration::checkoutDurationOf;
+    @DataBoundConstructor
+    public UnstableRateColumn() {
+        super();
+    }
 
-    static final Predicate<Run> SUCCESS = run -> run.getResult() == Result.SUCCESS;
-    static final Predicate<Run> UNSTABLE = run -> run.getResult() == Result.UNSTABLE;
-    static final Predicate<Run> NOT_SUCCESS = SUCCESS.negate();
-    static final Predicate<Run> COMPLETED = run -> !run.isBuilding();
+    @Metric
+    public Rate getUnstableRate(Job<? extends Job, ? extends Run> job) {
+        return rateOf(job.getBuilds(), COMPLETED, UNSTABLE).orElse(null);
+    }
 
-    private static final Comparator<RunWithDuration> DURATION_ORDERING = Comparator.comparing(
-            runWithDuration -> runWithDuration.getDuration().getAsLong());
+    @Extension
+    @Symbol("unstableRate")
+    public static class DescriptorImpl extends AdditionalMetricColumnDescriptor {
 
-    static final BinaryOperator<RunWithDuration> MIN = BinaryOperator.minBy(DURATION_ORDERING);
-    static final BinaryOperator<RunWithDuration> MAX = BinaryOperator.maxBy(DURATION_ORDERING);
-
-    private Helpers() {
-        // utility class
+        public DescriptorImpl() {
+            super(Messages.UnstableRateColumn_DisplayName());
+        }
     }
 }
