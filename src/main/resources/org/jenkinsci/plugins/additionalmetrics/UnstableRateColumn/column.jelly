@@ -1,7 +1,8 @@
+<?jelly escape-by-default='true'?>
 <!--
   ~ MIT License
   ~
-  ~ Copyright (c) 2022 Chadi El Masri
+  ~ Copyright (c) 2022 Chadi El Masri, Oussama Ben Ghorbel
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
   ~ of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +22,17 @@
   ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
   ~ SOFTWARE.
   -->
-<?jelly escape-by-default='true'?>
-<div>
-    Provides additional metrics for List Views: Success/Failure/Unstable Rates, Min/Max/Avg run and checkout
-    durations, Success/Failure
-    Time Rates.
-</div>
+
+<j:jelly xmlns:j="jelly:core">
+    <j:set var="unstableRate" value="${it.getUnstableRate(job)}"/>
+    <td data="${unstableRate.asDouble ?: '0.0'}">
+        <j:choose>
+            <j:when test="${unstableRate!=null}">
+                ${unstableRate.asString}
+            </j:when>
+            <j:otherwise>
+                ${%N/A}
+            </j:otherwise>
+        </j:choose>
+    </td>
+</j:jelly>

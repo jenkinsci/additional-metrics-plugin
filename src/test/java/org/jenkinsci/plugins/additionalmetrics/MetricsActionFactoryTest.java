@@ -90,7 +90,9 @@ public class MetricsActionFactoryTest {
                             "standardDeviationDuration",
                             isEqualTo(0),
                             "standardDeviationSuccessDuration",
-                            isEqualTo(0)));
+                            isEqualTo(0),
+                            "unstableRate",
+                            isEqualTo(0.0)));
         }
     }
 
@@ -133,7 +135,9 @@ public class MetricsActionFactoryTest {
                             "standardDeviationDuration",
                             isEqualTo(0),
                             "standardDeviationSuccessDuration",
-                            isEqualTo(0)));
+                            isEqualTo(0),
+                            "unstableRate",
+                            isEqualTo(0.0)));
         }
     }
 
