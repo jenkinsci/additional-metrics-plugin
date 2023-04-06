@@ -77,7 +77,7 @@
         <jenkins.version>2.289.3</jenkins.version>
         <java.level>11</java.level>
         <spotbugs.effort>Max</spotbugs.effort>
-        <spotless.version>2.35.0</spotless.version>
+        <spotless.version>2.36.0</spotless.version>
     </properties>
 
     <dependencyManagement>
