@@ -24,15 +24,15 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
+import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
+
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.views.ListViewColumn;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
 
 public class MinSuccessDurationColumn extends ListViewColumn {
 
@@ -43,12 +43,7 @@ public class MinSuccessDurationColumn extends ListViewColumn {
 
     @Metric
     public RunWithDuration getShortestSuccessfulRun(Job<? extends Job, ? extends Run> job) {
-        return findRun(
-                job.getBuilds(),
-                SUCCESS,
-                RUN_DURATION,
-                MIN
-        ).orElse(null);
+        return findRun(job.getBuilds(), SUCCESS, RUN_DURATION, MIN).orElse(null);
     }
 
     @Extension
@@ -58,7 +53,5 @@ public class MinSuccessDurationColumn extends ListViewColumn {
         public DescriptorImpl() {
             super(Messages.MinSuccessDurationColumn_DisplayName());
         }
-
     }
-
 }

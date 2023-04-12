@@ -24,16 +24,16 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
+import static org.jenkinsci.plugins.additionalmetrics.Utils.timeRateOf;
+
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.views.ListViewColumn;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.timeRateOf;
 
 public class SuccessTimeRateColumn extends ListViewColumn {
 
@@ -44,11 +44,7 @@ public class SuccessTimeRateColumn extends ListViewColumn {
 
     @Metric
     public Rate getSuccessTimeRate(Job<? extends Job, ? extends Run> job) {
-        return timeRateOf(
-                job.getBuilds(),
-                COMPLETED,
-                SUCCESS
-        ).orElse(null);
+        return timeRateOf(job.getBuilds(), COMPLETED, SUCCESS).orElse(null);
     }
 
     @Extension
@@ -58,7 +54,5 @@ public class SuccessTimeRateColumn extends ListViewColumn {
         public DescriptorImpl() {
             super(Messages.SuccessTimeRateColumn_DisplayName());
         }
-
     }
-
 }

@@ -24,9 +24,6 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.google.common.collect.ImmutableList;
-import hudson.model.ListView;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.sleepDefinition;
@@ -34,15 +31,18 @@ import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.sleepT
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.createAndAddListView;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.dataOf;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import com.google.common.collect.ImmutableList;
+import hudson.model.ListView;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-
 
 public class StdevDurationTest {
 
@@ -65,8 +65,10 @@ public class StdevDurationTest {
         WorkflowRun run2 = project.scheduleBuild2(0).get();
 
         Duration stdevDuration = stdevDurationColumn.getStdevDuration(project);
-        assertEquals((long) MathCommons.standardDeviation(ImmutableList.of(run1.getDuration(), run2.getDuration())).getAsDouble(), stdevDuration.getAsLong());
-
+        assertEquals(
+                (long) MathCommons.standardDeviation(ImmutableList.of(run1.getDuration(), run2.getDuration()))
+                        .getAsDouble(),
+                stdevDuration.getAsLong());
     }
 
     @Test
@@ -78,18 +80,23 @@ public class StdevDurationTest {
         WorkflowRun run2 = project.scheduleBuild2(0).get();
 
         Duration stdevDuration = stdevDurationColumn.getStdevDuration(project);
-        assertEquals((long) MathCommons.standardDeviation(ImmutableList.of(run1.getDuration(), run2.getDuration())).getAsDouble(), stdevDuration.getAsLong());
+        assertEquals(
+                (long) MathCommons.standardDeviation(ImmutableList.of(run1.getDuration(), run2.getDuration()))
+                        .getAsDouble(),
+                stdevDuration.getAsLong());
     }
 
     @Test
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", stdevDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", stdevDurationColumn, project);
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), stdevDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView), listView, project.getName(), stdevDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asNormalizedText());
@@ -102,11 +109,13 @@ public class StdevDurationTest {
         project.setDefinition(sleepDefinition(1));
         project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", stdevDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", stdevDurationColumn, project);
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), stdevDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView), listView, project.getName(), stdevDurationColumn.getColumnCaption());
         }
 
         assertEquals("0 ms", columnNode.asNormalizedText());
@@ -121,11 +130,13 @@ public class StdevDurationTest {
         project.setDefinition(sleepDefinition(3));
         project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListTwoRuns", stdevDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListTwoRuns", stdevDurationColumn, project);
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), stdevDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView), listView, project.getName(), stdevDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec

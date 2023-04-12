@@ -40,5 +40,4 @@ public class Duration {
     public String getAsString() {
         return Util.getTimeSpanString(milliseconds);
     }
-
 }

@@ -27,13 +27,12 @@ package org.jenkinsci.plugins.additionalmetrics;
 import hudson.Extension;
 import hudson.model.Action;
 import hudson.model.Job;
+import java.util.Collection;
+import java.util.Collections;
+import javax.annotation.Nonnull;
 import jenkins.model.TransientActionFactory;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
-
-import javax.annotation.Nonnull;
-import java.util.Collection;
-import java.util.Collections;
 
 @Extension
 public class MetricsActionFactory extends TransientActionFactory<Job> {

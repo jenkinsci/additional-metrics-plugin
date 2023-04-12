@@ -24,6 +24,10 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
+import static org.junit.Assert.assertEquals;
+
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
@@ -31,10 +35,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
-import static org.junit.Assert.assertEquals;
 
 public class FailureRateColumnTest {
     @ClassRule
@@ -79,7 +79,8 @@ public class FailureRateColumnTest {
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), failureRateColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView), listView, project.getName(), failureRateColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asNormalizedText());
@@ -96,11 +97,11 @@ public class FailureRateColumnTest {
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), failureRateColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView), listView, project.getName(), failureRateColumn.getColumnCaption());
         }
 
         assertEquals("100.00%", columnNode.asNormalizedText());
         assertEquals("1.0", dataOf(columnNode));
     }
-
 }

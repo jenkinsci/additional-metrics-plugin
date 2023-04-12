@@ -24,14 +24,15 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.RUN_DURATION;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
+import static org.jenkinsci.plugins.additionalmetrics.Utils.stdDevDuration;
+
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.views.ListViewColumn;
 import org.jenkinsci.Symbol;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.RUN_DURATION;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.SUCCESS;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.stdDevDuration;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class StdevSuccessDurationColumn extends ListViewColumn {
@@ -42,11 +43,7 @@ public class StdevSuccessDurationColumn extends ListViewColumn {
 
     @Metric
     public Duration getStdevSuccessDuration(Job<? extends Job, ? extends Run> job) {
-        return stdDevDuration(
-                job.getBuilds(),
-                SUCCESS,
-                RUN_DURATION
-        ).orElse(null);
+        return stdDevDuration(job.getBuilds(), SUCCESS, RUN_DURATION).orElse(null);
     }
 
     @Extension
@@ -56,7 +53,5 @@ public class StdevSuccessDurationColumn extends ListViewColumn {
         public DescriptorImpl() {
             super(Messages.StdevSuccessDurationColumn_DisplayName());
         }
-
     }
-
 }

@@ -26,15 +26,14 @@ package org.jenkinsci.plugins.additionalmetrics;
 
 import com.google.common.collect.Iterables;
 import hudson.views.ListViewColumn;
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Set;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Set;
 
 class Utilities {
     static void terminateWorkflowRun(WorkflowRun workflowRun) {
@@ -45,8 +44,8 @@ class Utilities {
     static Collection<Class<? extends ListViewColumn>> getColumns() {
         String packagePath = BuildingRunsTest.class.getPackage().getName();
 
-        Reflections reflections = new Reflections(new ConfigurationBuilder()
-                .setUrls(ClasspathHelper.forPackage(packagePath)));
+        Reflections reflections =
+                new Reflections(new ConfigurationBuilder().setUrls(ClasspathHelper.forPackage(packagePath)));
 
         return reflections.getSubTypesOf(ListViewColumn.class);
     }

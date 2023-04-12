@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.additionalmetrics;
 
 import com.google.common.collect.Iterables;
 import hudson.model.Run;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -45,8 +44,7 @@ class Utils {
     }
 
     static Optional<Rate> rateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
-        List<? extends Run> filteredRuns = preFilter(runs, preFilter)
-                .collect(Collectors.toList());
+        List<? extends Run> filteredRuns = preFilter(runs, preFilter).collect(Collectors.toList());
 
         if (filteredRuns.isEmpty()) {
             return Optional.empty();
@@ -66,8 +64,7 @@ class Utils {
     }
 
     static Optional<Rate> timeRateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
-        List<? extends Run> filteredRuns = preFilter(runs, preFilter)
-                .collect(Collectors.toList());
+        List<? extends Run> filteredRuns = preFilter(runs, preFilter).collect(Collectors.toList());
 
         if (filteredRuns.isEmpty()) {
             return Optional.empty();
@@ -93,22 +90,36 @@ class Utils {
         return Optional.of(new Rate((double) accumulatedPredicateTime / (endTime - startTime)));
     }
 
-    static Optional<RunWithDuration> findRun(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction, BinaryOperator<RunWithDuration> operator) {
+    static Optional<RunWithDuration> findRun(
+            List<? extends Run> runs,
+            Predicate<Run> preFilter,
+            ToLongFunction<Run> durationFunction,
+            BinaryOperator<RunWithDuration> operator) {
         return preFilter(runs, preFilter)
                 .filter(r -> durationFunction.applyAsLong(r) > 0)
                 .map(r -> new RunWithDuration(r, new Duration(durationFunction.applyAsLong(r))))
                 .reduce(operator);
     }
 
-    static Optional<Duration> averageDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
+    static Optional<Duration> averageDuration(
+            List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
         return durationFunction(runs, preFilter, durationFunction, LongStream::average);
     }
 
-    static Optional<Duration> stdDevDuration(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
-        return durationFunction(runs, preFilter, durationFunction, longStream -> MathCommons.standardDeviation(longStream.boxed().collect(Collectors.toList())));
+    static Optional<Duration> stdDevDuration(
+            List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
+        return durationFunction(
+                runs,
+                preFilter,
+                durationFunction,
+                longStream -> MathCommons.standardDeviation(longStream.boxed().collect(Collectors.toList())));
     }
 
-    private static Optional<Duration> durationFunction(List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction, Function<LongStream, OptionalDouble> durationCollector) {
+    private static Optional<Duration> durationFunction(
+            List<? extends Run> runs,
+            Predicate<Run> preFilter,
+            ToLongFunction<Run> durationFunction,
+            Function<LongStream, OptionalDouble> durationCollector) {
         LongStream longStream = preFilter(runs, preFilter)
                 .filter(r -> durationFunction.applyAsLong(r) > 0)
                 .mapToLong(durationFunction);
@@ -123,8 +134,6 @@ class Utils {
     }
 
     private static Stream<? extends Run> preFilter(List<? extends Run> runs, Predicate<Run> preFilter) {
-        return runs.stream()
-                .filter(preFilter);
+        return runs.stream().filter(preFilter);
     }
-
 }

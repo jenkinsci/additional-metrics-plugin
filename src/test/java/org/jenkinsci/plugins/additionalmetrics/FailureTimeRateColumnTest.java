@@ -24,14 +24,6 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import hudson.model.ListView;
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.hamcrest.number.OrderingComparison.lessThan;
@@ -39,6 +31,14 @@ import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.failin
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.successDefinition;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
 import static org.junit.Assert.assertEquals;
+
+import com.gargoylesoftware.htmlunit.html.DomNode;
+import hudson.model.ListView;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
 
 public class FailureTimeRateColumnTest {
     @ClassRule
@@ -92,11 +92,13 @@ public class FailureTimeRateColumnTest {
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", failureTimeRateColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", failureTimeRateColumn, project);
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), failureTimeRateColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView), listView, project.getName(), failureTimeRateColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asNormalizedText());
@@ -109,15 +111,16 @@ public class FailureTimeRateColumnTest {
         project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", failureTimeRateColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", failureTimeRateColumn, project);
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), failureTimeRateColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView), listView, project.getName(), failureTimeRateColumn.getColumnCaption());
         }
 
         assertEquals("100.00%", columnNode.asNormalizedText());
         assertEquals("1.0", dataOf(columnNode));
     }
-
 }

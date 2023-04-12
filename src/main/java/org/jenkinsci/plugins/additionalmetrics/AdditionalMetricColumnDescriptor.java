@@ -25,7 +25,6 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
 import hudson.views.ListViewColumnDescriptor;
-
 import javax.annotation.Nonnull;
 
 abstract class AdditionalMetricColumnDescriptor extends ListViewColumnDescriptor {

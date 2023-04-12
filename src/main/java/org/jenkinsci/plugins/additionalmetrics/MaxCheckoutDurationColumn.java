@@ -24,15 +24,15 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
+import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
+
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.views.ListViewColumn;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.findRun;
 
 public class MaxCheckoutDurationColumn extends ListViewColumn {
 
@@ -43,12 +43,7 @@ public class MaxCheckoutDurationColumn extends ListViewColumn {
 
     @Metric
     public RunWithDuration getLongestCheckoutRun(Job<? extends Job, ? extends Run> job) {
-        return findRun(
-                job.getBuilds(),
-                COMPLETED,
-                RUN_CHECKOUT_DURATION,
-                MAX
-        ).orElse(null);
+        return findRun(job.getBuilds(), COMPLETED, RUN_CHECKOUT_DURATION, MAX).orElse(null);
     }
 
     @Extension
@@ -58,7 +53,5 @@ public class MaxCheckoutDurationColumn extends ListViewColumn {
         public DescriptorImpl() {
             super(Messages.MaxCheckoutDurationColumn_DisplayName());
         }
-
     }
-
 }

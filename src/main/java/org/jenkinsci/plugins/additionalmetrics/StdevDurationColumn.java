@@ -24,14 +24,15 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.RUN_DURATION;
+import static org.jenkinsci.plugins.additionalmetrics.Utils.stdDevDuration;
+
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.views.ListViewColumn;
 import org.jenkinsci.Symbol;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.RUN_DURATION;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.stdDevDuration;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class StdevDurationColumn extends ListViewColumn {
@@ -52,7 +53,5 @@ public class StdevDurationColumn extends ListViewColumn {
         public DescriptorImpl() {
             super(Messages.StdevDurationColumn_DisplayName());
         }
-
     }
-
 }

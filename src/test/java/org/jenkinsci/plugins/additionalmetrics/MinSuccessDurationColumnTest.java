@@ -24,6 +24,12 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
+import static org.junit.Assert.*;
+
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
@@ -33,12 +39,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
-import static org.junit.Assert.*;
 
 public class MinSuccessDurationColumnTest {
     @ClassRule
@@ -90,11 +90,16 @@ public class MinSuccessDurationColumnTest {
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", minSuccessDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", minSuccessDurationColumn, project);
 
         DomNode columnNode;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), minSuccessDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView),
+                    listView,
+                    project.getName(),
+                    minSuccessDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asNormalizedText());
@@ -107,11 +112,16 @@ public class MinSuccessDurationColumnTest {
         project.setDefinition(sleepDefinition(1));
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", minSuccessDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", minSuccessDurationColumn, project);
 
         DomNode columnNode;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), minSuccessDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView),
+                    listView,
+                    project.getName(),
+                    minSuccessDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec - #1
@@ -121,5 +131,4 @@ public class MinSuccessDurationColumnTest {
 
         assertThat(Long.parseLong(dataOf(columnNode)), greaterThan(0L));
     }
-
 }

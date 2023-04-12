@@ -30,11 +30,10 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import hudson.model.ListView;
 import hudson.model.TopLevelItem;
 import hudson.views.ListViewColumn;
-import jenkins.model.Jenkins;
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import jenkins.model.Jenkins;
 
 class UIHelpers {
 
@@ -55,7 +54,8 @@ class UIHelpers {
         return td;
     }
 
-    static ListView createAndAddListView(Jenkins instance, String listName, ListViewColumn column, TopLevelItem job) throws IOException {
+    static ListView createAndAddListView(Jenkins instance, String listName, ListViewColumn column, TopLevelItem job)
+            throws IOException {
         ListView listView = new ListView(listName, instance);
         listView.getColumns().add(column);
         listView.add(job);

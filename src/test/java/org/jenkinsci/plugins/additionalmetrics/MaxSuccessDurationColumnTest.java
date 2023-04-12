@@ -24,6 +24,12 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
+import static org.junit.Assert.*;
+
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
@@ -33,12 +39,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
-import static org.junit.Assert.*;
 
 public class MaxSuccessDurationColumnTest {
     @ClassRule
@@ -90,11 +90,16 @@ public class MaxSuccessDurationColumnTest {
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", maxSuccessDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", maxSuccessDurationColumn, project);
 
         DomNode columnNode;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), maxSuccessDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView),
+                    listView,
+                    project.getName(),
+                    maxSuccessDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asNormalizedText());
@@ -107,11 +112,16 @@ public class MaxSuccessDurationColumnTest {
         project.setDefinition(sleepDefinition(1));
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", maxSuccessDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", maxSuccessDurationColumn, project);
 
         DomNode columnNode;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), maxSuccessDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView),
+                    listView,
+                    project.getName(),
+                    maxSuccessDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec - #1
@@ -121,5 +131,4 @@ public class MaxSuccessDurationColumnTest {
 
         assertThat(Long.parseLong(dataOf(columnNode)), greaterThan(0L));
     }
-
 }
