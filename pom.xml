@@ -28,7 +28,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>4.50</version>
+        <version>4.59</version>
     </parent>
 
     <artifactId>additional-metrics</artifactId>
@@ -74,8 +74,7 @@
     <properties>
         <changelist>999999-SNAPSHOT</changelist>
         <gitHubRepo>jenkinsci/additional-metrics-plugin</gitHubRepo>
-        <jenkins.version>2.289.3</jenkins.version>
-        <java.level>11</java.level>
+        <jenkins.version>2.361.4</jenkins.version>
         <spotbugs.effort>Max</spotbugs.effort>
         <spotless.version>2.36.0</spotless.version>
     </properties>
@@ -84,8 +83,8 @@
         <dependencies>
             <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.289.x</artifactId>
-                <version>1500.ve4d05cd32975</version>
+                <artifactId>bom-2.361.x</artifactId>
+                <version>1981.v17df70e84a_a_1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
