@@ -24,5 +24,4 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-public @interface Metric {
-}
+public @interface Metric {}

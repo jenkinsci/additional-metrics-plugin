@@ -24,16 +24,16 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.NOT_SUCCESS;
+import static org.jenkinsci.plugins.additionalmetrics.Utils.rateOf;
+
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.views.ListViewColumn;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.COMPLETED;
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.NOT_SUCCESS;
-import static org.jenkinsci.plugins.additionalmetrics.Utils.rateOf;
 
 public class FailureRateColumn extends ListViewColumn {
 
@@ -44,11 +44,7 @@ public class FailureRateColumn extends ListViewColumn {
 
     @Metric
     public Rate getFailureRate(Job<? extends Job, ? extends Run> job) {
-        return rateOf(
-                job.getBuilds(),
-                COMPLETED,
-                NOT_SUCCESS
-        ).orElse(null);
+        return rateOf(job.getBuilds(), COMPLETED, NOT_SUCCESS).orElse(null);
     }
 
     @Extension
@@ -58,7 +54,5 @@ public class FailureRateColumn extends ListViewColumn {
         public DescriptorImpl() {
             super(Messages.FailureRateColumn_DisplayName());
         }
-
     }
-
 }

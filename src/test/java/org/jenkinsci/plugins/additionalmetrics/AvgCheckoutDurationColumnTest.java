@@ -24,6 +24,12 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
+import static org.junit.Assert.*;
+
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.FreeStyleProject;
 import hudson.model.ListView;
@@ -34,12 +40,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.SleepBuilder;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
-import static org.junit.Assert.*;
 
 public class AvgCheckoutDurationColumnTest {
     @ClassRule
@@ -103,11 +103,16 @@ public class AvgCheckoutDurationColumnTest {
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", avgCheckoutDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", avgCheckoutDurationColumn, project);
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), avgCheckoutDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView),
+                    listView,
+                    project.getName(),
+                    avgCheckoutDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asNormalizedText());
@@ -120,11 +125,16 @@ public class AvgCheckoutDurationColumnTest {
         project.setDefinition(checkoutDefinition());
         project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", avgCheckoutDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", avgCheckoutDurationColumn, project);
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), avgCheckoutDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView),
+                    listView,
+                    project.getName(),
+                    avgCheckoutDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec

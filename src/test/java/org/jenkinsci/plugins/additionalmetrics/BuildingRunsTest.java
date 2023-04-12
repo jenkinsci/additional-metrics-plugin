@@ -24,7 +24,17 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.not;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.slowDefinition;
+import static org.jenkinsci.plugins.additionalmetrics.Utilities.getColumns;
+import static org.jenkinsci.plugins.additionalmetrics.Utilities.getMetricMethod;
+import static org.junit.Assert.assertNull;
+
 import hudson.views.ListViewColumn;
+import java.lang.reflect.Method;
+import java.util.Collection;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.AfterClass;
@@ -36,17 +46,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 import org.jvnet.hudson.test.JenkinsRule;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.not;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.slowDefinition;
-import static org.jenkinsci.plugins.additionalmetrics.Utilities.getColumns;
-import static org.jenkinsci.plugins.additionalmetrics.Utilities.getMetricMethod;
-import static org.junit.Assert.assertNull;
 
 @RunWith(Parameterized.class)
 public class BuildingRunsTest {
@@ -89,5 +88,4 @@ public class BuildingRunsTest {
 
         assertNull(res);
     }
-
 }

@@ -24,6 +24,12 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
+import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
+import static org.junit.Assert.*;
+
 import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.FreeStyleProject;
 import hudson.model.ListView;
@@ -36,12 +42,6 @@ import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.JenkinsRule.WebClient;
 import org.jvnet.hudson.test.SleepBuilder;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
-import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
-import static org.junit.Assert.*;
 
 public class MaxCheckoutDurationColumnTest {
     @ClassRule
@@ -103,11 +103,16 @@ public class MaxCheckoutDurationColumnTest {
     public void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", maxCheckoutDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", maxCheckoutDurationColumn, project);
 
         DomNode columnNode;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), maxCheckoutDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView),
+                    listView,
+                    project.getName(),
+                    maxCheckoutDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asNormalizedText());
@@ -120,11 +125,16 @@ public class MaxCheckoutDurationColumnTest {
         project.setDefinition(checkoutDefinition());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", maxCheckoutDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", maxCheckoutDurationColumn, project);
 
         DomNode columnNode;
         try (WebClient webClient = jenkinsRule.createWebClient()) {
-            columnNode = getListViewCell(webClient.getPage(listView), listView, project.getName(), maxCheckoutDurationColumn.getColumnCaption());
+            columnNode = getListViewCell(
+                    webClient.getPage(listView),
+                    listView,
+                    project.getName(),
+                    maxCheckoutDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec - #1
@@ -134,5 +144,4 @@ public class MaxCheckoutDurationColumnTest {
 
         assertThat(Long.parseLong(dataOf(columnNode)), greaterThan(0L));
     }
-
 }

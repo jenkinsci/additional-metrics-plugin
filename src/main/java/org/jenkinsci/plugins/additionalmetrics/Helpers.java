@@ -26,7 +26,6 @@ package org.jenkinsci.plugins.additionalmetrics;
 
 import hudson.model.Result;
 import hudson.model.Run;
-
 import java.util.Comparator;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
@@ -41,7 +40,8 @@ class Helpers {
     static final Predicate<Run> NOT_SUCCESS = SUCCESS.negate();
     static final Predicate<Run> COMPLETED = run -> !run.isBuilding();
 
-    private static final Comparator<RunWithDuration> DURATION_ORDERING = Comparator.comparing(runWithDuration -> runWithDuration.getDuration().getAsLong());
+    private static final Comparator<RunWithDuration> DURATION_ORDERING = Comparator.comparing(
+            runWithDuration -> runWithDuration.getDuration().getAsLong());
 
     static final BinaryOperator<RunWithDuration> MIN = BinaryOperator.minBy(DURATION_ORDERING);
     static final BinaryOperator<RunWithDuration> MAX = BinaryOperator.maxBy(DURATION_ORDERING);
@@ -49,6 +49,4 @@ class Helpers {
     private Helpers() {
         // utility class
     }
-
-
 }

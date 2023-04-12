@@ -24,15 +24,13 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class RateStringParameterizedTest {
@@ -47,15 +45,13 @@ public class RateStringParameterizedTest {
 
     @Parameters(name = "{index}: rate[{0}]={1}")
     public static Iterable<Object[]> data() {
-        return Arrays.asList(
-                new Object[][]{
-                        {0, "0.00%"},
-                        {0.333333, "33.33%"},
-                        {0.5, "50.00%"},
-                        {0.666667, "66.67%"},
-                        {1, "100.00%"},
-                }
-        );
+        return Arrays.asList(new Object[][] {
+            {0, "0.00%"},
+            {0.333333, "33.33%"},
+            {0.5, "50.00%"},
+            {0.666667, "66.67%"},
+            {1, "100.00%"},
+        });
     }
 
     @Test

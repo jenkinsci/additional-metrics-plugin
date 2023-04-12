@@ -36,8 +36,7 @@ import java.util.stream.DoubleStream;
  */
 public final class MathCommons {
 
-    private MathCommons() {
-    }
+    private MathCommons() {}
 
     /**
      * @param list elements
@@ -57,11 +56,9 @@ public final class MathCommons {
         return standardDeviationDouble(() -> list.stream().mapToDouble(t -> t.doubleValue()));
     }
 
-
     private static OptionalDouble averageDouble(Supplier<DoubleStream> streamSupplier) {
         OptionalDouble average = streamSupplier.get().average();
-        if (!average.isPresent())
-            return OptionalDouble.empty();
+        if (!average.isPresent()) return OptionalDouble.empty();
         return average;
     }
 
@@ -71,7 +68,9 @@ public final class MathCommons {
             return OptionalDouble.empty();
         } else {
             // Given the stream consumed is a finite sequence, if a mean is present, std follows.
-            double variance = streamSupplier.get().map(d -> d - mean.getAsDouble())
+            double variance = streamSupplier
+                    .get()
+                    .map(d -> d - mean.getAsDouble())
                     .map(d -> d * d)
                     .average()
                     .getAsDouble();

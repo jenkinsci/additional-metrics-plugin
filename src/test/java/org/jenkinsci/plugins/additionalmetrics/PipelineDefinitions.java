@@ -28,7 +28,8 @@ import org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition;
 
 class PipelineDefinitions {
 
-    private static final String CHECKOUT = "checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/jenkinsci/additional-metrics-plugin.git']]])";
+    private static final String CHECKOUT =
+            "checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/jenkinsci/additional-metrics-plugin.git']]])";
     private static final String FAILURE = "ech";
     private static final String UNSTABLE = "currentBuild.result = 'UNSTABLE'";
 
@@ -71,5 +72,4 @@ class PipelineDefinitions {
     static CpsFlowDefinition slowDefinition() {
         return sleepDefinition(60);
     }
-
 }

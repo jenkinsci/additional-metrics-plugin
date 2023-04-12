@@ -24,14 +24,14 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
+import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
+
 import hudson.Extension;
 import hudson.model.Job;
 import hudson.model.Run;
 import hudson.views.ListViewColumn;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
-
-import static org.jenkinsci.plugins.additionalmetrics.Helpers.*;
 
 public class MinCheckoutDurationColumn extends ListViewColumn {
 
@@ -42,12 +42,8 @@ public class MinCheckoutDurationColumn extends ListViewColumn {
 
     @Metric
     public RunWithDuration getShortestCheckoutRun(Job<? extends Job, ? extends Run> job) {
-        return Utils.findRun(
-                job.getBuilds(),
-                COMPLETED,
-                RUN_CHECKOUT_DURATION,
-                MIN
-        ).orElse(null);
+        return Utils.findRun(job.getBuilds(), COMPLETED, RUN_CHECKOUT_DURATION, MIN)
+                .orElse(null);
     }
 
     @Extension
@@ -57,7 +53,5 @@ public class MinCheckoutDurationColumn extends ListViewColumn {
         public DescriptorImpl() {
             super(Messages.MinCheckoutDurationColumn_DisplayName());
         }
-
     }
-
 }
