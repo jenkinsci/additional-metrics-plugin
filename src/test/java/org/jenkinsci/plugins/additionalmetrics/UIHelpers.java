@@ -24,9 +24,6 @@
 
 package org.jenkinsci.plugins.additionalmetrics;
 
-import com.gargoylesoftware.htmlunit.html.DomElement;
-import com.gargoylesoftware.htmlunit.html.DomNode;
-import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import hudson.model.ListView;
 import hudson.model.TopLevelItem;
 import hudson.views.ListViewColumn;
@@ -34,6 +31,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import jenkins.model.Jenkins;
+import org.htmlunit.html.DomElement;
+import org.htmlunit.html.DomNode;
+import org.htmlunit.html.HtmlPage;
 
 class UIHelpers {
 
