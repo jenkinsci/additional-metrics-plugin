@@ -32,8 +32,8 @@ import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.dataOf;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.getListViewCell;
 import static org.junit.Assert.assertEquals;
 
-import com.gargoylesoftware.htmlunit.html.DomNode;
 import hudson.model.ListView;
+import org.htmlunit.html.DomNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.Before;
 import org.junit.ClassRule;
