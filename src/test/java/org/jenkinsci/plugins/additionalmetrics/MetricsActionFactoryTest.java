@@ -7,7 +7,6 @@ import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.succes
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -73,8 +72,7 @@ public class MetricsActionFactoryTest {
     }
 
     @Test
-    public void one_run_should_have_appropriate_metrics()
-            throws IOException, SAXException, ExecutionException, InterruptedException {
+    public void one_run_should_have_appropriate_metrics() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneSuccessBuild");
         project.setDefinition(successDefinition());
         project.scheduleBuild2(0).get();
@@ -118,8 +116,7 @@ public class MetricsActionFactoryTest {
     }
 
     @Test
-    public void one_checkout_run_should_have_checkout_metrics()
-            throws IOException, SAXException, ExecutionException, InterruptedException {
+    public void one_checkout_run_should_have_checkout_metrics() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneCheckoutBuild");
         project.setDefinition(checkoutDefinition());
         project.scheduleBuild2(0).get();
