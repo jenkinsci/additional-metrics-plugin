@@ -2,29 +2,36 @@ package org.jenkinsci.plugins.additionalmetrics;
 
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import hudson.model.ListView;
 import org.htmlunit.html.DomNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class UnstableRateColumnTest {
-    @ClassRule
-    public static final JenkinsRule jenkinsRule = new JenkinsRule();
+@WithJenkins
+class UnstableRateColumnTest {
 
     private UnstableRateColumn unstableRateColumn;
 
-    @Before
-    public void before() {
+    private static JenkinsRule jenkinsRule;
+
+    @BeforeAll
+    static void setUp(JenkinsRule rule) {
+        jenkinsRule = rule;
+    }
+
+    @BeforeEach
+    void before() {
         unstableRateColumn = new UnstableRateColumn();
     }
 
     @Test
-    public void no_unstable_job_should_be_0_percent() throws Exception {
+    void no_unstable_job_should_be_0_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithNoUnstableBuilds");
         project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
@@ -35,7 +42,7 @@ public class UnstableRateColumnTest {
     }
 
     @Test
-    public void one_unstable_job_over_two_failed_should_be_50_percent() throws Exception {
+    void one_unstable_job_over_two_failed_should_be_50_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableJob");
         project.setDefinition(unstableDefinition());
         project.scheduleBuild2(0).get();
@@ -46,7 +53,7 @@ public class UnstableRateColumnTest {
     }
 
     @Test
-    public void no_runs_should_display_as_NA_in_UI() throws Exception {
+    void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
         ListView listView =
@@ -63,7 +70,7 @@ public class UnstableRateColumnTest {
     }
 
     @Test
-    public void one_unstable_over_one_failed_should_display_percentage_in_UI() throws Exception {
+    void one_unstable_over_one_failed_should_display_percentage_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
         project.setDefinition(unstableDefinition());
         project.scheduleBuild2(0).get();
@@ -82,7 +89,7 @@ public class UnstableRateColumnTest {
     }
 
     @Test
-    public void one_unstable_job_over_four_jobs_should_be_25_percent() throws Exception {
+    void one_unstable_job_over_four_jobs_should_be_25_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithFourJobs");
         project.setDefinition(unstableDefinition());
         project.scheduleBuild2(0).get();

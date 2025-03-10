@@ -2,29 +2,36 @@ package org.jenkinsci.plugins.additionalmetrics;
 
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import hudson.model.ListView;
 import org.htmlunit.html.DomNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class SuccessRateColumnTest {
-    @ClassRule
-    public static final JenkinsRule jenkinsRule = new JenkinsRule();
+@WithJenkins
+class SuccessRateColumnTest {
 
     private SuccessRateColumn successRateColumn;
 
-    @Before
-    public void before() {
+    private static JenkinsRule jenkinsRule;
+
+    @BeforeAll
+    static void setUp(JenkinsRule rule) {
+        jenkinsRule = rule;
+    }
+
+    @BeforeEach
+    void before() {
         successRateColumn = new SuccessRateColumn();
     }
 
     @Test
-    public void one_failed_job_over_two_success_rate_should_be_50_percent() throws Exception {
+    void one_failed_job_over_two_success_rate_should_be_50_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneOverTwoSuccess");
         project.setDefinition(failingDefinition());
         project.scheduleBuild2(0).get();
@@ -37,7 +44,7 @@ public class SuccessRateColumnTest {
     }
 
     @Test
-    public void unstable_run_are_considered_failures() throws Exception {
+    void unstable_run_are_considered_failures() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableBuild");
         project.setDefinition(unstableDefinition());
         project.scheduleBuild2(0).get();
@@ -48,7 +55,7 @@ public class SuccessRateColumnTest {
     }
 
     @Test
-    public void no_runs_should_display_as_NA_in_UI() throws Exception {
+    void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
         ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", successRateColumn, project);
@@ -64,7 +71,7 @@ public class SuccessRateColumnTest {
     }
 
     @Test
-    public void one_run_should_display_percentage_in_UI() throws Exception {
+    void one_run_should_display_percentage_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
         project.setDefinition(successDefinition());
         project.scheduleBuild2(0).get();

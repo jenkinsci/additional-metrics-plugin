@@ -1,26 +1,14 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
-public class RateStringParameterizedTest {
+class RateStringParameterizedTest {
 
-    private final double input;
-    private final String expected;
-
-    public RateStringParameterizedTest(double input, String expected) {
-        this.input = input;
-        this.expected = expected;
-    }
-
-    @Parameters(name = "{index}: rate[{0}]={1}")
-    public static Iterable<Object[]> data() {
+    static Iterable<Object[]> data() {
         return Arrays.asList(new Object[][] {
             {0, "0.00%"},
             {0.333333, "33.33%"},
@@ -30,8 +18,9 @@ public class RateStringParameterizedTest {
         });
     }
 
-    @Test
-    public void test() {
+    @ParameterizedTest(name = "{index}: rate[{0}]={1}")
+    @MethodSource("data")
+    void test(double input, String expected) {
         Rate rate = new Rate(input);
         assertEquals(expected, rate.getAsString());
     }

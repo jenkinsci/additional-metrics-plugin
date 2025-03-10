@@ -5,33 +5,39 @@ import static org.hamcrest.number.OrderingComparison.greaterThan;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.sleepDefinition;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.sleepThenFailDefinition;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.ImmutableList;
 import hudson.model.ListView;
 import org.htmlunit.html.DomNode;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-public class StdevDurationTest {
-
-    @ClassRule
-    public static final JenkinsRule jenkinsRule = new JenkinsRule();
+@WithJenkins
+class StdevDurationTest {
 
     private StdevDurationColumn stdevDurationColumn;
 
-    @Before
-    public void before() {
+    private static JenkinsRule jenkinsRule;
+
+    @BeforeAll
+    static void setUp(JenkinsRule rule) {
+        jenkinsRule = rule;
+    }
+
+    @BeforeEach
+    void before() {
         stdevDurationColumn = new StdevDurationColumn();
     }
 
     @Test
-    public void two_successful_runs_should_return_their_stdev_duration() throws Exception {
+    void two_successful_runs_should_return_their_stdev_duration() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
         project.setDefinition(sleepDefinition(1));
         WorkflowRun run1 = project.scheduleBuild2(0).get();
@@ -46,7 +52,7 @@ public class StdevDurationTest {
     }
 
     @Test
-    public void failed_runs_should_be_included() throws Exception {
+    void failed_runs_should_be_included() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailedBuild");
         project.setDefinition(sleepThenFailDefinition(1));
         WorkflowRun run1 = project.scheduleBuild2(0).get();
@@ -61,7 +67,7 @@ public class StdevDurationTest {
     }
 
     @Test
-    public void no_runs_should_display_as_NA_in_UI() throws Exception {
+    void no_runs_should_display_as_NA_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
 
         ListView listView =
@@ -78,7 +84,7 @@ public class StdevDurationTest {
     }
 
     @Test
-    public void one_run_should_display_0_in_UI() throws Exception {
+    void one_run_should_display_0_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
         project.setDefinition(sleepDefinition(1));
         project.scheduleBuild2(0).get();
@@ -97,7 +103,7 @@ public class StdevDurationTest {
     }
 
     @Test
-    public void two_runs_should_display_stdev_duration_in_UI() throws Exception {
+    void two_runs_should_display_stdev_duration_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoBuildsForUI");
         project.setDefinition(sleepDefinition(1));
         project.scheduleBuild2(0).get();
