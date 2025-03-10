@@ -6,57 +6,52 @@ import static org.hamcrest.Matchers.not;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.slowDefinition;
 import static org.jenkinsci.plugins.additionalmetrics.Utilities.getColumns;
 import static org.jenkinsci.plugins.additionalmetrics.Utilities.getMetricMethod;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import hudson.views.ListViewColumn;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameter;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 
-@RunWith(Parameterized.class)
-public class BuildingRunsTest {
+@WithJenkins
+class BuildingRunsTest {
 
-    @Parameters(name = "{0}")
-    public static Iterable<Class<? extends ListViewColumn>> data() {
+    static Iterable<Class<? extends ListViewColumn>> data() {
         Collection<Class<? extends ListViewColumn>> columns = getColumns();
         assertThat(columns, not(empty()));
         return columns;
     }
 
-    @Parameter
-    public Class<? extends ListViewColumn> clazz;
-
     private static WorkflowJob project;
     private static WorkflowRun workflowRun;
 
-    @ClassRule
-    public static final JenkinsRule jenkinsRule = new JenkinsRule();
+    private static JenkinsRule jenkinsRule;
 
-    @BeforeClass
-    public static void initProject() throws Exception {
+    @BeforeAll
+    static void setUp(JenkinsRule rule) throws Exception {
+        jenkinsRule = rule;
+
         project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
         project.setDefinition(slowDefinition());
 
         workflowRun = project.scheduleBuild2(0).waitForStart();
     }
 
-    @AfterClass
-    public static void stopRun() {
+    @AfterAll
+    static void stopRun() {
         Utilities.terminateWorkflowRun(workflowRun);
     }
 
-    @Test
-    public void building_runs_should_be_excluded() throws Exception {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    void building_runs_should_be_excluded(Class<? extends ListViewColumn> clazz) throws Exception {
         Object instance = clazz.getDeclaredConstructor().newInstance();
         Method method = getMetricMethod(clazz);
 

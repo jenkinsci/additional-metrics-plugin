@@ -14,17 +14,24 @@ import org.htmlunit.html.DomElement;
 import org.htmlunit.html.DomNode;
 import org.htmlunit.xml.XmlPage;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 import org.xml.sax.SAXException;
 
-public class MetricsActionFactoryTest {
-    @ClassRule
-    public static final JenkinsRule jenkinsRule = new JenkinsRule();
+@WithJenkins
+class MetricsActionFactoryTest {
+
+    private static JenkinsRule jenkinsRule;
+
+    @BeforeAll
+    static void setUp(JenkinsRule rule) {
+        jenkinsRule = rule;
+    }
 
     @Test
-    public void no_runs_metrics_should_be_zeros() throws IOException, SAXException {
+    void no_runs_metrics_should_be_zeros() throws IOException, SAXException {
         jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
 
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
@@ -72,7 +79,7 @@ public class MetricsActionFactoryTest {
     }
 
     @Test
-    public void one_run_should_have_appropriate_metrics() throws Exception {
+    void one_run_should_have_appropriate_metrics() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneSuccessBuild");
         project.setDefinition(successDefinition());
         project.scheduleBuild2(0).get();
@@ -116,7 +123,7 @@ public class MetricsActionFactoryTest {
     }
 
     @Test
-    public void one_checkout_run_should_have_checkout_metrics() throws Exception {
+    void one_checkout_run_should_have_checkout_metrics() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneCheckoutBuild");
         project.setDefinition(checkoutDefinition());
         project.scheduleBuild2(0).get();
@@ -140,7 +147,7 @@ public class MetricsActionFactoryTest {
     }
 
     private Matcher<String> isGreaterThan(final Number value) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             @Override
             protected boolean matchesSafely(String item) {
                 return Double.parseDouble(item) > value.doubleValue();
@@ -154,7 +161,7 @@ public class MetricsActionFactoryTest {
     }
 
     private Matcher<String> isEqualTo(final Number value) {
-        return new TypeSafeMatcher<String>() {
+        return new TypeSafeMatcher<>() {
             @Override
             protected boolean matchesSafely(String item) {
                 return item.equals(value.toString());
@@ -168,7 +175,7 @@ public class MetricsActionFactoryTest {
     }
 
     private Matcher<Map<String, String>> match(final Object... data) {
-        return new TypeSafeMatcher<Map<String, String>>() {
+        return new TypeSafeMatcher<>() {
             @Override
             protected boolean matchesSafely(Map<String, String> item) {
                 for (int i = 0; i < data.length; i += 2) {
