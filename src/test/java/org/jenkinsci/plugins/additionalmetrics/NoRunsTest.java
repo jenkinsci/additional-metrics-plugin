@@ -8,8 +8,9 @@ import static org.jenkinsci.plugins.additionalmetrics.Utilities.getMetricMethod;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import hudson.views.ListViewColumn;
+import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Collection;
+import java.util.List;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,21 +21,17 @@ import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 @WithJenkins
 class NoRunsTest {
 
-    static Iterable<Class<? extends ListViewColumn>> data() {
-        Collection<Class<? extends ListViewColumn>> columns = getColumns();
+    static List<? extends Class<?>> data() throws IOException {
+        List<? extends Class<?>> columns = getColumns();
         assertThat(columns, not(empty()));
         return columns;
     }
 
     private static WorkflowJob project;
 
-    private static JenkinsRule jenkinsRule;
-
     @BeforeAll
     static void setUp(JenkinsRule rule) throws Exception {
-        jenkinsRule = rule;
-
-        project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
+        project = rule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
     }
 
     @ParameterizedTest(name = "{0}")

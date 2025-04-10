@@ -9,8 +9,9 @@ import static org.jenkinsci.plugins.additionalmetrics.Utilities.getMetricMethod;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import hudson.views.ListViewColumn;
+import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Collection;
+import java.util.List;
 import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.jupiter.api.AfterAll;
@@ -23,8 +24,8 @@ import org.jvnet.hudson.test.junit.jupiter.WithJenkins;
 @WithJenkins
 class BuildingRunsTest {
 
-    static Iterable<Class<? extends ListViewColumn>> data() {
-        Collection<Class<? extends ListViewColumn>> columns = getColumns();
+    static List<? extends Class<?>> data() throws IOException {
+        List<? extends Class<?>> columns = getColumns();
         assertThat(columns, not(empty()));
         return columns;
     }
@@ -32,13 +33,9 @@ class BuildingRunsTest {
     private static WorkflowJob project;
     private static WorkflowRun workflowRun;
 
-    private static JenkinsRule jenkinsRule;
-
     @BeforeAll
     static void setUp(JenkinsRule rule) throws Exception {
-        jenkinsRule = rule;
-
-        project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
+        project = rule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
         project.setDefinition(slowDefinition());
 
         workflowRun = project.scheduleBuild2(0).waitForStart();

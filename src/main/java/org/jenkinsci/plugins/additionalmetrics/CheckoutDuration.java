@@ -19,8 +19,7 @@ class CheckoutDuration {
 
     static long checkoutDurationOf(Run run) {
         Jenkins instance = Jenkins.getInstanceOrNull();
-        if (instance != null && instance.getPlugin("workflow-job") != null && run instanceof WorkflowRun) {
-            WorkflowRun currentBuild = (WorkflowRun) run;
+        if (instance != null && instance.getPlugin("workflow-job") != null && run instanceof WorkflowRun currentBuild) {
             FlowExecution execution = currentBuild.getExecution();
             if (execution != null) {
                 return countCheckoutDuration(execution);

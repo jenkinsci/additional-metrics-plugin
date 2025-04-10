@@ -9,7 +9,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
-import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -20,7 +19,7 @@ class Utils {
     }
 
     static Optional<Rate> rateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
-        List<? extends Run> filteredRuns = preFilter(runs, preFilter).collect(Collectors.toList());
+        List<? extends Run> filteredRuns = preFilter(runs, preFilter).toList();
 
         if (filteredRuns.isEmpty()) {
             return Optional.empty();
@@ -40,7 +39,7 @@ class Utils {
     }
 
     static Optional<Rate> timeRateOf(List<? extends Run> runs, Predicate<Run> preFilter, Predicate<Run> predicateRate) {
-        List<? extends Run> filteredRuns = preFilter(runs, preFilter).collect(Collectors.toList());
+        List<? extends Run> filteredRuns = preFilter(runs, preFilter).toList();
 
         if (filteredRuns.isEmpty()) {
             return Optional.empty();
@@ -88,7 +87,7 @@ class Utils {
                 runs,
                 preFilter,
                 durationFunction,
-                longStream -> MathCommons.standardDeviation(longStream.boxed().collect(Collectors.toList())));
+                longStream -> MathCommons.standardDeviation(longStream.boxed().toList()));
     }
 
     private static Optional<Duration> durationFunction(
