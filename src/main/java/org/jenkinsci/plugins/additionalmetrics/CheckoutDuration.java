@@ -35,8 +35,8 @@ class CheckoutDuration {
         FlowGraphWalker graphWalker = new FlowGraphWalker(execution);
         FlowNode nextNode = null;
         for (FlowNode node : graphWalker) {
-            if (node instanceof StepAtomNode) {
-                StepDescriptor descriptor = ((StepAtomNode) node).getDescriptor();
+            if (node instanceof StepAtomNode stepNode) {
+                StepDescriptor descriptor = stepNode.getDescriptor();
                 if (descriptor != null && descriptor.clazz.equals(GenericSCMStep.class)) {
                     totalCheckoutTime += (TimingAction.getStartTime(nextNode) - TimingAction.getStartTime(node));
                 }

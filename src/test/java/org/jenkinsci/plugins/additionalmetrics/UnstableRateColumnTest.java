@@ -33,9 +33,9 @@ class UnstableRateColumnTest {
     @Test
     void no_unstable_job_should_be_0_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithNoUnstableBuilds");
-        project.setDefinition(failingDefinition());
+        project.setDefinition(failure());
         project.scheduleBuild2(0).get();
-        project.setDefinition(successDefinition());
+        project.setDefinition(success());
         project.scheduleBuild2(0).get();
         Rate unstableRate = unstableRateColumn.getUnstableRate(project);
         assertEquals(0.0, unstableRate.getAsDouble(), 0);
@@ -44,9 +44,9 @@ class UnstableRateColumnTest {
     @Test
     void one_unstable_job_over_two_failed_should_be_50_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableJob");
-        project.setDefinition(unstableDefinition());
+        project.setDefinition(unstable());
         project.scheduleBuild2(0).get();
-        project.setDefinition(failingDefinition());
+        project.setDefinition(failure());
         project.scheduleBuild2(0).get();
         Rate unstableRate = unstableRateColumn.getUnstableRate(project);
         assertEquals(0.5, unstableRate.getAsDouble(), 0);
@@ -72,7 +72,7 @@ class UnstableRateColumnTest {
     @Test
     void one_unstable_over_one_failed_should_display_percentage_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
-        project.setDefinition(unstableDefinition());
+        project.setDefinition(unstable());
         project.scheduleBuild2(0).get();
 
         ListView listView =
@@ -91,12 +91,12 @@ class UnstableRateColumnTest {
     @Test
     void one_unstable_job_over_four_jobs_should_be_25_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithFourJobs");
-        project.setDefinition(unstableDefinition());
+        project.setDefinition(unstable());
         project.scheduleBuild2(0).get();
-        project.setDefinition(failingDefinition());
+        project.setDefinition(failure());
         project.scheduleBuild2(0).get();
         project.scheduleBuild2(0).get();
-        project.setDefinition(successDefinition());
+        project.setDefinition(success());
         project.scheduleBuild2(0).get();
 
         Rate unstableRate = unstableRateColumn.getUnstableRate(project);

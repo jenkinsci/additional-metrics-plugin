@@ -1,13 +1,13 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core">
     <j:set var="shortestRun" value="${it.getShortestRun(job)}"/>
-    <td data="${shortestRun.duration.asLong ?: '0'}">
+    <td data="${shortestRun.duration().asLong ?: '0'}">
         <j:choose>
             <j:when test="${shortestRun!=null}">
-                ${shortestRun.run.durationString}
+                ${shortestRun.run().durationString}
                 -
-                <a href="${jobBaseUrl}${job.shortUrl}${shortestRun.run.id}/" class="model-link inside">
-                    ${shortestRun.run.displayName}
+                <a href="${jobBaseUrl}${job.shortUrl}${shortestRun.run().id}/" class="model-link inside">
+                    ${shortestRun.run().displayName}
                 </a>
             </j:when>
             <j:otherwise>

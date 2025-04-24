@@ -14,39 +14,47 @@ class PipelineDefinitions {
         // test utility class
     }
 
-    static CpsFlowDefinition failingDefinition() throws Descriptor.FormException {
+    static CpsFlowDefinition failure() throws Descriptor.FormException {
         return new CpsFlowDefinition("node { " + FAILURE + " }", true);
     }
 
-    static CpsFlowDefinition successDefinition() throws Descriptor.FormException {
+    static CpsFlowDefinition success() throws Descriptor.FormException {
         return new CpsFlowDefinition("node { echo 'Hello, World!' }", true);
     }
 
-    static CpsFlowDefinition unstableDefinition() throws Descriptor.FormException {
+    static CpsFlowDefinition unstable() throws Descriptor.FormException {
         return new CpsFlowDefinition("node { " + UNSTABLE + " }", true);
     }
 
-    static CpsFlowDefinition sleepDefinition(int seconds) throws Descriptor.FormException {
-        return new CpsFlowDefinition("node { sleep " + seconds + " }", true);
+    static CpsFlowDefinition slow() throws Descriptor.FormException {
+        return sleep(3);
     }
 
-    static CpsFlowDefinition sleepThenFailDefinition(int seconds) throws Descriptor.FormException {
-        return new CpsFlowDefinition("node { sleep " + seconds + "; " + FAILURE + " }", true);
+    static CpsFlowDefinition verySlow() throws Descriptor.FormException {
+        return sleep(60);
     }
 
-    static CpsFlowDefinition checkoutDefinition() throws Descriptor.FormException {
+    static CpsFlowDefinition slowFailure() throws Descriptor.FormException {
+        return sleepThenFail(3);
+    }
+
+    static CpsFlowDefinition checkout() throws Descriptor.FormException {
         return new CpsFlowDefinition("node { " + CHECKOUT + " }", true);
     }
 
-    static CpsFlowDefinition checkoutThenFailDefinition() throws Descriptor.FormException {
+    static CpsFlowDefinition checkoutThenFail() throws Descriptor.FormException {
         return new CpsFlowDefinition("node { " + CHECKOUT + "; " + FAILURE + " }", true);
     }
 
-    static CpsFlowDefinition checkoutThenUnstableDefinition() throws Descriptor.FormException {
+    static CpsFlowDefinition checkoutThenUnstable() throws Descriptor.FormException {
         return new CpsFlowDefinition("node { " + CHECKOUT + "; " + UNSTABLE + " }", true);
     }
 
-    static CpsFlowDefinition slowDefinition() throws Descriptor.FormException {
-        return sleepDefinition(60);
+    static CpsFlowDefinition sleep(int seconds) throws Descriptor.FormException {
+        return new CpsFlowDefinition("node { sleep " + seconds + " }", true);
+    }
+
+    private static CpsFlowDefinition sleepThenFail(int seconds) throws Descriptor.FormException {
+        return new CpsFlowDefinition("node { sleep " + seconds + "; " + FAILURE + " }", true);
     }
 }

@@ -17,8 +17,8 @@ class Helpers {
     static final Predicate<Run> NOT_SUCCESS = SUCCESS.negate();
     static final Predicate<Run> COMPLETED = run -> !run.isBuilding();
 
-    private static final Comparator<RunWithDuration> DURATION_ORDERING = Comparator.comparing(
-            runWithDuration -> runWithDuration.getDuration().getAsLong());
+    private static final Comparator<RunWithDuration> DURATION_ORDERING =
+            Comparator.comparing(runWithDuration -> runWithDuration.duration().getAsLong());
 
     static final BinaryOperator<RunWithDuration> MIN = BinaryOperator.minBy(DURATION_ORDERING);
     static final BinaryOperator<RunWithDuration> MAX = BinaryOperator.maxBy(DURATION_ORDERING);

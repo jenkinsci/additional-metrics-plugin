@@ -1,8 +1,8 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.checkoutDefinition;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.successDefinition;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.checkout;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.success;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -81,7 +81,7 @@ class MetricsActionFactoryTest {
     @Test
     void one_run_should_have_appropriate_metrics() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneSuccessBuild");
-        project.setDefinition(successDefinition());
+        project.setDefinition(success());
         project.scheduleBuild2(0).get();
 
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
@@ -125,7 +125,7 @@ class MetricsActionFactoryTest {
     @Test
     void one_checkout_run_should_have_checkout_metrics() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneCheckoutBuild");
-        project.setDefinition(checkoutDefinition());
+        project.setDefinition(checkout());
         project.scheduleBuild2(0).get();
 
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {

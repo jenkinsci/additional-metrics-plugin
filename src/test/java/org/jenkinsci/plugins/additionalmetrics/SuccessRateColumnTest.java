@@ -33,9 +33,9 @@ class SuccessRateColumnTest {
     @Test
     void one_failed_job_over_two_success_rate_should_be_50_percent() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneOverTwoSuccess");
-        project.setDefinition(failingDefinition());
+        project.setDefinition(failure());
         project.scheduleBuild2(0).get();
-        project.setDefinition(successDefinition());
+        project.setDefinition(success());
         project.scheduleBuild2(0).get();
 
         Rate successRate = successRateColumn.getSuccessRate(project);
@@ -46,7 +46,7 @@ class SuccessRateColumnTest {
     @Test
     void unstable_run_are_considered_failures() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableBuild");
-        project.setDefinition(unstableDefinition());
+        project.setDefinition(unstable());
         project.scheduleBuild2(0).get();
 
         Rate successRate = successRateColumn.getSuccessRate(project);
@@ -73,7 +73,7 @@ class SuccessRateColumnTest {
     @Test
     void one_run_should_display_percentage_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
-        project.setDefinition(successDefinition());
+        project.setDefinition(success());
         project.scheduleBuild2(0).get();
 
         ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", successRateColumn, project);
