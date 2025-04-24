@@ -1,9 +1,13 @@
 Additional Metrics Plugin
 =========================
 
-[![Jenkins Plugin](https://img.shields.io/jenkins/plugin/v/additional-metrics.svg)](https://plugins.jenkins.io/additional-metrics)
+[![GitHub release](https://img.shields.io/github/release/jenkinsci/additional-metrics-plugin.svg?label=changelog)](https://github.com/jenkinsci/additional-metrics-plugin/releases/latest)
 [![Jenkins Plugin Installs](https://img.shields.io/jenkins/plugin/i/additional-metrics.svg?color=blue)](https://plugins.jenkins.io/additional-metrics)
-[![Build Status](https://ci.jenkins.io/buildStatus/icon?job=Plugins/additional-metrics-plugin/master)](https://ci.jenkins.io/job/Plugins/job/additional-metrics-plugin/job/master/)
+[![Build](https://ci.jenkins.io/buildStatus/icon?job=Plugins/additional-metrics-plugin/master)](https://ci.jenkins.io/job/Plugins/job/additional-metrics-plugin/job/master/)
+[![Coverage](https://ci.jenkins.io/job/Plugins/job/additional-metrics-plugin/job/master/badge/icon?status=${instructionCoverage}&subject=coverage&color=${colorInstructionCoverage})](https://ci.jenkins.io/job/Plugins/job/additional-metrics-plugin/job/master)
+[![LOC](https://ci.jenkins.io/job/Plugins/job/additional-metrics-plugin/job/master/badge/icon?job=test&status=${lineOfCode}&subject=lines%20of%20code&color=blue)](https://ci.jenkins.io/job/Plugins/job/additional-metrics-plugin/job/master)
+![Contributors](https://img.shields.io/github/contributors/jenkinsci/additional-metrics-plugin.svg?color=blue)
+[![License](https://img.shields.io/github/license/jenkinsci/additional-metrics-plugin)](https://github.com/jenkinsci/additional-metrics-plugin/blob/master/LICENSE)
 
 Provides additional metrics via columns in Jenkins' List View.
 
@@ -126,13 +130,3 @@ You will get an output similar to the below (modified for clarity):
   ]
 }
 ```
-
-### Requirements
-Jenkins 2.289.3 or later.
-
-### Building
-```
-mvn package
-```
-
-Snapshot builds are available [here](https://ci.jenkins.io/blue/organizations/jenkins/Plugins%2Fadditional-metrics-plugin/branches/).
