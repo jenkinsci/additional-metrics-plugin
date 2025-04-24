@@ -1,9 +1,9 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
+import static org.jenkinsci.plugins.additionalmetrics.Utilities.TIME_UNITS;
 import static org.junit.jupiter.api.Assertions.*;
 
 import hudson.model.FreeStyleProject;
@@ -40,34 +40,34 @@ class MaxCheckoutDurationColumnTest {
     @Test
     void one_run_with_checkout_should_return_checkout() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithCheckout");
-        project.setDefinition(checkoutDefinition());
+        project.setDefinition(checkout());
         project.scheduleBuild2(0).get();
 
         RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(project);
 
-        assertThat(longestCheckoutRun.getDuration().getAsLong(), greaterThan(0L));
+        assertThat(longestCheckoutRun.duration().getAsLong()).isGreaterThan(0L);
     }
 
     @Test
     void failed_runs_are_included_in_the_checkout_time_calculation() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithFailureAfterCheckout");
-        project.setDefinition(checkoutThenFailDefinition());
+        project.setDefinition(checkoutThenFail());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
         RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(project);
 
-        assertSame(run, longestCheckoutRun.getRun());
+        assertSame(run, longestCheckoutRun.run());
     }
 
     @Test
     void unstable_runs_are_included_in_the_checkout_time_calculation() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithUnstableAfterCheckout");
-        project.setDefinition(checkoutThenUnstableDefinition());
+        project.setDefinition(checkoutThenUnstable());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
         RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(project);
 
-        assertSame(run, longestCheckoutRun.getRun());
+        assertSame(run, longestCheckoutRun.run());
     }
 
     @Test
@@ -75,7 +75,7 @@ class MaxCheckoutDurationColumnTest {
         FreeStyleProject project = jenkinsRule.createFreeStyleProject("FreestyleProjectWithOneBuild");
         project.setScm(new GitSCM("https://github.com/jenkinsci/additional-metrics-plugin.git"));
         project.getBuildersList().add(new SleepBuilder(200));
-        project.scheduleBuild2(0).waitForStart();
+        project.scheduleBuild2(0).get();
 
         RunWithDuration longestCheckoutRun = maxCheckoutDurationColumn.getLongestCheckoutRun(project);
 
@@ -105,7 +105,7 @@ class MaxCheckoutDurationColumnTest {
     @Test
     void one_run_should_display_time_and_build_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
-        project.setDefinition(checkoutDefinition());
+        project.setDefinition(checkout());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
         ListView listView =
@@ -122,9 +122,9 @@ class MaxCheckoutDurationColumnTest {
 
         // sample output: 1.1 sec - #1
         String text = columnNode.asNormalizedText();
-        assertTrue(text.contains("sec"));
-        assertTrue(text.contains("#" + run.getId()));
 
-        assertThat(Long.parseLong(dataOf(columnNode)), greaterThan(0L));
+        assertThat(text).containsAnyOf(TIME_UNITS);
+        assertThat(text).contains("#" + run.getId());
+        assertThat(Long.parseLong(dataOf(columnNode))).isGreaterThan(0L);
     }
 }

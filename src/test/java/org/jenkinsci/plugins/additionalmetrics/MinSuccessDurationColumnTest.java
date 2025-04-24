@@ -1,9 +1,9 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.number.OrderingComparison.greaterThan;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
+import static org.jenkinsci.plugins.additionalmetrics.Utilities.TIME_UNITS;
 import static org.junit.jupiter.api.Assertions.*;
 
 import hudson.model.ListView;
@@ -37,20 +37,20 @@ class MinSuccessDurationColumnTest {
     @Test
     void two_successful_runs_should_return_the_shortest() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
-        project.setDefinition(sleepDefinition(1));
+        project.setDefinition(success());
         WorkflowRun run1 = project.scheduleBuild2(0).get();
-        project.setDefinition(sleepDefinition(6));
+        project.setDefinition(slow());
         project.scheduleBuild2(0).get();
 
         RunWithDuration shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
 
-        assertSame(run1, shortestRun.getRun());
+        assertSame(run1, shortestRun.run());
     }
 
     @Test
     void failed_runs_should_be_excluded() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailedBuild");
-        project.setDefinition(failingDefinition());
+        project.setDefinition(failure());
         project.scheduleBuild2(0).get();
 
         RunWithDuration shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
@@ -61,7 +61,7 @@ class MinSuccessDurationColumnTest {
     @Test
     void unstable_runs_should_be_excluded() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableBuild");
-        project.setDefinition(unstableDefinition());
+        project.setDefinition(unstable());
         project.scheduleBuild2(0).get();
 
         RunWithDuration shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(project);
@@ -92,7 +92,7 @@ class MinSuccessDurationColumnTest {
     @Test
     void one_run_should_display_time_and_build_in_UI() throws Exception {
         WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
-        project.setDefinition(sleepDefinition(1));
+        project.setDefinition(success());
         WorkflowRun run = project.scheduleBuild2(0).get();
 
         ListView listView =
@@ -109,9 +109,9 @@ class MinSuccessDurationColumnTest {
 
         // sample output: 1.1 sec - #1
         String text = columnNode.asNormalizedText();
-        assertTrue(text.contains("sec"));
-        assertTrue(text.contains("#" + run.getId()));
 
-        assertThat(Long.parseLong(dataOf(columnNode)), greaterThan(0L));
+        assertThat(text).containsAnyOf(TIME_UNITS);
+        assertThat(text).contains("#" + run.getId());
+        assertThat(Long.parseLong(dataOf(columnNode))).isGreaterThan(0L);
     }
 }

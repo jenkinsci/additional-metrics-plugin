@@ -2,13 +2,7 @@ package org.jenkinsci.plugins.additionalmetrics;
 
 import hudson.Util;
 
-public class Duration {
-    private final long milliseconds;
-
-    public Duration(long milliseconds) {
-        this.milliseconds = milliseconds;
-    }
-
+public record Duration(long milliseconds) {
     public long getAsLong() {
         return milliseconds;
     }

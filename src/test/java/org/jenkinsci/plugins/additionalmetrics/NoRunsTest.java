@@ -1,8 +1,6 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.jenkinsci.plugins.additionalmetrics.Utilities.getColumns;
 import static org.jenkinsci.plugins.additionalmetrics.Utilities.getMetricMethod;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -23,7 +21,7 @@ class NoRunsTest {
 
     static List<? extends Class<?>> data() throws IOException {
         List<? extends Class<?>> columns = getColumns();
-        assertThat(columns, not(empty()));
+        assertThat(columns).isNotEmpty();
         return columns;
     }
 

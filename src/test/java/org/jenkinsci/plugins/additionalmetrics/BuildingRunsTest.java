@@ -1,9 +1,7 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.not;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.slowDefinition;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.verySlow;
 import static org.jenkinsci.plugins.additionalmetrics.Utilities.getColumns;
 import static org.jenkinsci.plugins.additionalmetrics.Utilities.getMetricMethod;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -26,7 +24,7 @@ class BuildingRunsTest {
 
     static List<? extends Class<?>> data() throws IOException {
         List<? extends Class<?>> columns = getColumns();
-        assertThat(columns, not(empty()));
+        assertThat(columns).isNotEmpty();
         return columns;
     }
 
@@ -36,7 +34,7 @@ class BuildingRunsTest {
     @BeforeAll
     static void setUp(JenkinsRule rule) throws Exception {
         project = rule.createProject(WorkflowJob.class, "ProjectWithOneBuildingBuild");
-        project.setDefinition(slowDefinition());
+        project.setDefinition(verySlow());
 
         workflowRun = project.scheduleBuild2(0).waitForStart();
     }

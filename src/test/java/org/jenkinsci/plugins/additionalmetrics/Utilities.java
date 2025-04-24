@@ -10,6 +10,8 @@ import java.util.List;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 
 class Utilities {
+    static final CharSequence[] TIME_UNITS = {" sec", " ms"};
+
     static void terminateWorkflowRun(WorkflowRun workflowRun) {
         workflowRun.doTerm();
         workflowRun.doKill();
