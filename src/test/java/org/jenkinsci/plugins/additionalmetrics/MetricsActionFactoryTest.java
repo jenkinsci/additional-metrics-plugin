@@ -1,8 +1,8 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.checkout;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.success;
+import static org.jenkinsci.plugins.additionalmetrics.JobRunner.WorkflowBuilder.StepDefinitions.CHECKOUT;
+import static org.jenkinsci.plugins.additionalmetrics.JobRunner.WorkflowBuilder.StepDefinitions.SUCCESS;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,7 +13,6 @@ import org.hamcrest.TypeSafeMatcher;
 import org.htmlunit.html.DomElement;
 import org.htmlunit.html.DomNode;
 import org.htmlunit.xml.XmlPage;
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -32,11 +31,11 @@ class MetricsActionFactoryTest {
 
     @Test
     void no_runs_metrics_should_be_zeros() throws IOException, SAXException {
-        jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
+        var runner = JobRunner.createWorkflowJob(jenkinsRule);
 
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
             XmlPage xmlPage = webClient.goToXml(
-                    "api/xml?depth=3&xpath=/hudson/job[name='ProjectWithZeroBuilds']/action/jobMetrics");
+                    "api/xml?depth=3&xpath=/hudson/job[name='" + runner.getJob().getName() + "']/action/jobMetrics");
 
             Map<String, String> metrics = childrenAsMap(xmlPage.getDocumentElement());
 
@@ -80,13 +79,13 @@ class MetricsActionFactoryTest {
 
     @Test
     void one_run_should_have_appropriate_metrics() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneSuccessBuild");
-        project.setDefinition(success());
-        project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(SUCCESS)
+                .schedule();
 
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
             XmlPage xmlPage = webClient.goToXml(
-                    "api/xml?depth=3&xpath=/hudson/job[name='ProjectWithOneSuccessBuild']/action/jobMetrics");
+                    "api/xml?depth=3&xpath=/hudson/job[name='" + runner.getJob().getName() + "']/action/jobMetrics");
 
             Map<String, String> metrics = childrenAsMap(xmlPage.getDocumentElement());
 
@@ -124,13 +123,13 @@ class MetricsActionFactoryTest {
 
     @Test
     void one_checkout_run_should_have_checkout_metrics() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneCheckoutBuild");
-        project.setDefinition(checkout());
-        project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(CHECKOUT)
+                .schedule();
 
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
             XmlPage xmlPage = webClient.goToXml(
-                    "api/xml?depth=3&xpath=/hudson/job[name='ProjectWithOneCheckoutBuild']/action/jobMetrics");
+                    "api/xml?depth=3&xpath=/hudson/job[name='" + runner.getJob().getName() + "']/action/jobMetrics");
 
             Map<String, String> metrics = childrenAsMap(xmlPage.getDocumentElement());
 

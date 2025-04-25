@@ -9,7 +9,6 @@ import hudson.views.ListViewColumn;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.List;
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -25,11 +24,11 @@ class NoRunsTest {
         return columns;
     }
 
-    private static WorkflowJob project;
+    private static JobRunner.WorkflowBuilder runner;
 
     @BeforeAll
     static void setUp(JenkinsRule rule) throws Exception {
-        project = rule.createProject(WorkflowJob.class, "ProjectWithZeroBuilds");
+        runner = JobRunner.createWorkflowJob(rule);
     }
 
     @ParameterizedTest(name = "{0}")
@@ -38,7 +37,7 @@ class NoRunsTest {
         Object instance = clazz.getDeclaredConstructor().newInstance();
         Method method = getMetricMethod(clazz);
 
-        Object res = method.invoke(instance, project);
+        Object res = method.invoke(instance, runner.getJob());
 
         assertNull(res);
     }

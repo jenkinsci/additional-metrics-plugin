@@ -1,15 +1,13 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
+import static org.jenkinsci.plugins.additionalmetrics.JobRunner.WorkflowBuilder.StepDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
 import static org.jenkinsci.plugins.additionalmetrics.Utilities.TIME_UNITS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import hudson.model.ListView;
 import org.htmlunit.html.DomNode;
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,62 +33,68 @@ class AvgDurationColumnTest {
 
     @Test
     void two_successful_runs_should_return_their_average_duration() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
-        project.setDefinition(success());
-        WorkflowRun run1 = project.scheduleBuild2(0).get();
-        project.setDefinition(slow());
-        WorkflowRun run2 = project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(SUCCESS)
+                .schedule()
+                .configurePipelineDefinition(SLOW_3S)
+                .schedule();
 
-        Duration avgDuration = avgDurationColumn.getAverageDuration(project);
+        Duration avgDuration = avgDurationColumn.getAverageDuration(runner.getJob());
 
-        assertEquals((run1.getDuration() + run2.getDuration()) / 2, avgDuration.getAsLong());
+        assertEquals(
+                (runner.getRuns()[0].getDuration() + runner.getRuns()[1].getDuration()) / 2, avgDuration.getAsLong());
     }
 
     @Test
     void two_runs_including_one_failure_should_return_their_average_duration() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoBuildsOneFailure");
-        project.setDefinition(success());
-        WorkflowRun run1 = project.scheduleBuild2(0).get();
-        project.setDefinition(slowFailure());
-        WorkflowRun run2 = project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(SUCCESS)
+                .schedule()
+                .configurePipelineDefinition(SLOW_3S, FAILURE)
+                .schedule();
 
-        Duration avgDuration = avgDurationColumn.getAverageDuration(project);
+        Duration avgDuration = avgDurationColumn.getAverageDuration(runner.getJob());
 
-        assertEquals((run1.getDuration() + run2.getDuration()) / 2, avgDuration.getAsLong());
+        assertEquals(
+                (runner.getRuns()[0].getDuration() + runner.getRuns()[1].getDuration()) / 2, avgDuration.getAsLong());
     }
 
     @Test
     void failed_runs_are_not_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailedBuild");
-        project.setDefinition(failure());
-        WorkflowRun run = project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(FAILURE)
+                .schedule();
 
-        Duration avgDuration = avgDurationColumn.getAverageDuration(project);
+        Duration avgDuration = avgDurationColumn.getAverageDuration(runner.getJob());
 
-        assertEquals(run.getDuration(), avgDuration.getAsLong());
+        assertEquals(runner.getRuns()[0].getDuration(), avgDuration.getAsLong());
     }
 
     @Test
     void unstable_runs_are_not_excluded() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneUnstableBuild");
-        project.setDefinition(unstable());
-        WorkflowRun run = project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(UNSTABLE)
+                .schedule();
 
-        Duration avgDuration = avgDurationColumn.getAverageDuration(project);
+        Duration avgDuration = avgDurationColumn.getAverageDuration(runner.getJob());
 
-        assertEquals(run.getDuration(), avgDuration.getAsLong());
+        assertEquals(runner.getRuns()[0].getDuration(), avgDuration.getAsLong());
     }
 
     @Test
     void no_runs_should_display_as_NA_in_UI() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
+        var runner = JobRunner.createWorkflowJob(jenkinsRule);
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", avgDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", avgDurationColumn, runner.getJob());
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
             columnNode = getListViewCell(
-                    webClient.getPage(listView), listView, project.getName(), avgDurationColumn.getColumnCaption());
+                    webClient.getPage(listView),
+                    listView,
+                    runner.getJob().getName(),
+                    avgDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asNormalizedText());
@@ -99,16 +103,20 @@ class AvgDurationColumnTest {
 
     @Test
     void one_run_should_display_avg_duration_in_UI() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
-        project.setDefinition(success());
-        project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(SUCCESS)
+                .schedule();
 
-        ListView listView = createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", avgDurationColumn, project);
+        ListView listView =
+                createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", avgDurationColumn, runner.getJob());
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
             columnNode = getListViewCell(
-                    webClient.getPage(listView), listView, project.getName(), avgDurationColumn.getColumnCaption());
+                    webClient.getPage(listView),
+                    listView,
+                    runner.getJob().getName(),
+                    avgDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec

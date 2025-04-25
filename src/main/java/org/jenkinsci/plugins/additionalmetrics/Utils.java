@@ -83,11 +83,17 @@ class Utils {
 
     static Optional<Duration> stdDevDuration(
             List<? extends Run> runs, Predicate<Run> preFilter, ToLongFunction<Run> durationFunction) {
-        return durationFunction(
-                runs,
-                preFilter,
-                durationFunction,
-                longStream -> MathCommons.standardDeviation(longStream.boxed().toList()));
+        List<Long> durations = preFilter(runs, preFilter)
+                .filter(r -> durationFunction.applyAsLong(r) > 0)
+                .mapToLong(durationFunction)
+                .boxed()
+                .toList();
+
+        if (!durations.isEmpty()) {
+            return Optional.of(new Duration((long) MathCommons.standardDeviation(durations)));
+        } else {
+            return Optional.empty();
+        }
     }
 
     private static Optional<Duration> durationFunction(
