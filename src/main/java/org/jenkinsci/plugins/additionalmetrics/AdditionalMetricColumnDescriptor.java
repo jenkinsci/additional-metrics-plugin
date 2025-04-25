@@ -1,7 +1,7 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.views.ListViewColumnDescriptor;
-import javax.annotation.Nonnull;
 
 abstract class AdditionalMetricColumnDescriptor extends ListViewColumnDescriptor {
 
@@ -16,7 +16,7 @@ abstract class AdditionalMetricColumnDescriptor extends ListViewColumnDescriptor
         return false;
     }
 
-    @Nonnull
+    @NonNull
     @Override
     public String getDisplayName() {
         return displayName;
