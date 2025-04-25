@@ -1,16 +1,14 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.jenkinsci.plugins.additionalmetrics.PipelineDefinitions.*;
+import static org.jenkinsci.plugins.additionalmetrics.JobRunner.WorkflowBuilder.StepDefinitions.*;
 import static org.jenkinsci.plugins.additionalmetrics.UIHelpers.*;
 import static org.jenkinsci.plugins.additionalmetrics.Utilities.TIME_UNITS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.google.common.collect.ImmutableList;
 import hudson.model.ListView;
+import java.util.List;
 import org.htmlunit.html.DomNode;
-import org.jenkinsci.plugins.workflow.job.WorkflowJob;
-import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,45 +34,50 @@ class StdevDurationTest {
 
     @Test
     void two_successful_runs_should_return_their_stdev_duration() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoSuccessfulBuilds");
-        project.setDefinition(success());
-        WorkflowRun run1 = project.scheduleBuild2(0).get();
-        project.setDefinition(slow());
-        WorkflowRun run2 = project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(SUCCESS)
+                .schedule()
+                .configurePipelineDefinition(SLOW_3S)
+                .schedule();
 
-        Duration stdevDuration = stdevDurationColumn.getStdevDuration(project);
+        Duration stdevDuration = stdevDurationColumn.getStdevDuration(runner.getJob());
+
         assertEquals(
-                (long) MathCommons.standardDeviation(ImmutableList.of(run1.getDuration(), run2.getDuration()))
-                        .getAsDouble(),
+                (long) MathCommons.standardDeviation(
+                        List.of(runner.getRuns()[0].getDuration(), runner.getRuns()[1].getDuration())),
                 stdevDuration.getAsLong());
     }
 
     @Test
     void failed_runs_should_be_included() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneFailedBuild");
-        project.setDefinition(failure());
-        WorkflowRun run1 = project.scheduleBuild2(0).get();
-        project.setDefinition(slow());
-        WorkflowRun run2 = project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(FAILURE)
+                .schedule()
+                .configurePipelineDefinition(SLOW_3S)
+                .schedule();
 
-        Duration stdevDuration = stdevDurationColumn.getStdevDuration(project);
+        Duration stdevDuration = stdevDurationColumn.getStdevDuration(runner.getJob());
+
         assertEquals(
-                (long) MathCommons.standardDeviation(ImmutableList.of(run1.getDuration(), run2.getDuration()))
-                        .getAsDouble(),
+                (long) MathCommons.standardDeviation(
+                        List.of(runner.getRuns()[0].getDuration(), runner.getRuns()[1].getDuration())),
                 stdevDuration.getAsLong());
     }
 
     @Test
     void no_runs_should_display_as_NA_in_UI() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithZeroBuildsForUI");
+        var runner = JobRunner.createWorkflowJob(jenkinsRule);
 
         ListView listView =
-                createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", stdevDurationColumn, project);
+                createAndAddListView(jenkinsRule.getInstance(), "MyListNoRuns", stdevDurationColumn, runner.getJob());
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
             columnNode = getListViewCell(
-                    webClient.getPage(listView), listView, project.getName(), stdevDurationColumn.getColumnCaption());
+                    webClient.getPage(listView),
+                    listView,
+                    runner.getJob().getName(),
+                    stdevDurationColumn.getColumnCaption());
         }
 
         assertEquals("N/A", columnNode.asNormalizedText());
@@ -83,17 +86,20 @@ class StdevDurationTest {
 
     @Test
     void one_run_should_display_0_in_UI() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithOneBuildForUI");
-        project.setDefinition(success());
-        project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(SUCCESS)
+                .schedule();
 
         ListView listView =
-                createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", stdevDurationColumn, project);
+                createAndAddListView(jenkinsRule.getInstance(), "MyListOneRun", stdevDurationColumn, runner.getJob());
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
             columnNode = getListViewCell(
-                    webClient.getPage(listView), listView, project.getName(), stdevDurationColumn.getColumnCaption());
+                    webClient.getPage(listView),
+                    listView,
+                    runner.getJob().getName(),
+                    stdevDurationColumn.getColumnCaption());
         }
 
         assertEquals("0 ms", columnNode.asNormalizedText());
@@ -102,19 +108,22 @@ class StdevDurationTest {
 
     @Test
     void two_runs_should_display_stdev_duration_in_UI() throws Exception {
-        WorkflowJob project = jenkinsRule.createProject(WorkflowJob.class, "ProjectWithTwoBuildsForUI");
-        project.setDefinition(success());
-        project.scheduleBuild2(0).get();
-        project.setDefinition(slow());
-        project.scheduleBuild2(0).get();
+        var runner = JobRunner.createWorkflowJob(jenkinsRule)
+                .configurePipelineDefinition(SUCCESS)
+                .schedule()
+                .configurePipelineDefinition(SLOW_3S)
+                .schedule();
 
         ListView listView =
-                createAndAddListView(jenkinsRule.getInstance(), "MyListTwoRuns", stdevDurationColumn, project);
+                createAndAddListView(jenkinsRule.getInstance(), "MyListTwoRuns", stdevDurationColumn, runner.getJob());
 
         DomNode columnNode;
         try (JenkinsRule.WebClient webClient = jenkinsRule.createWebClient()) {
             columnNode = getListViewCell(
-                    webClient.getPage(listView), listView, project.getName(), stdevDurationColumn.getColumnCaption());
+                    webClient.getPage(listView),
+                    listView,
+                    runner.getJob().getName(),
+                    stdevDurationColumn.getColumnCaption());
         }
 
         // sample output: 1.1 sec
