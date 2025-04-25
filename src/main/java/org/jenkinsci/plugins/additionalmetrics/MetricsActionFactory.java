@@ -1,11 +1,11 @@
 package org.jenkinsci.plugins.additionalmetrics;
 
+import edu.umd.cs.findbugs.annotations.NonNull;
 import hudson.Extension;
 import hudson.model.Action;
 import hudson.model.Job;
 import java.util.Collection;
 import java.util.Collections;
-import javax.annotation.Nonnull;
 import jenkins.model.TransientActionFactory;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
@@ -17,9 +17,9 @@ public class MetricsActionFactory extends TransientActionFactory<Job> {
         return Job.class;
     }
 
-    @Nonnull
+    @NonNull
     @Override
-    public Collection<? extends Action> createFor(@Nonnull Job target) {
+    public Collection<? extends Action> createFor(@NonNull Job target) {
         return Collections.singleton(new MetricsAction(target));
     }
 
