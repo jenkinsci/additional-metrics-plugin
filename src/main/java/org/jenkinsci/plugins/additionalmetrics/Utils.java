@@ -115,6 +115,7 @@ class Utils {
     }
 
     private static Stream<? extends Run> preFilter(List<? extends Run> runs, Predicate<Run> preFilter) {
-        return runs.stream().filter(preFilter);
+        Stream<? extends Run> stream = runs.size() > 100 ? runs.parallelStream() : runs.stream();
+        return stream.filter(preFilter);
     }
 }
