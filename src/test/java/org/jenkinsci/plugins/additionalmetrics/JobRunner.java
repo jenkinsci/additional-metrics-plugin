@@ -82,7 +82,7 @@ class JobRunner {
             SUCCESS("echo 'Hello, World!'"),
             FAILURE("ech"),
             UNSTABLE("currentBuild.result = 'UNSTABLE'"),
-            SLOW_3S("sleep 3"),
+            SLOW_1S("sleep 1"),
             CHECKOUT(
                     "checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[url: '"
                             + SCM_URL + "']]])"),

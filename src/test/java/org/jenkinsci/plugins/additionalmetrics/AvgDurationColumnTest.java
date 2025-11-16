@@ -36,7 +36,7 @@ class AvgDurationColumnTest {
         var runner = JobRunner.createWorkflowJob(jenkinsRule)
                 .configurePipelineDefinition(SUCCESS)
                 .schedule()
-                .configurePipelineDefinition(SLOW_3S)
+                .configurePipelineDefinition(SLOW_1S)
                 .schedule();
 
         Duration avgDuration = avgDurationColumn.getAverageDuration(runner.getJob());
@@ -50,7 +50,7 @@ class AvgDurationColumnTest {
         var runner = JobRunner.createWorkflowJob(jenkinsRule)
                 .configurePipelineDefinition(SUCCESS)
                 .schedule()
-                .configurePipelineDefinition(SLOW_3S, FAILURE)
+                .configurePipelineDefinition(SLOW_1S, FAILURE)
                 .schedule();
 
         Duration avgDuration = avgDurationColumn.getAverageDuration(runner.getJob());

@@ -37,7 +37,7 @@ class StdevDurationTest {
         var runner = JobRunner.createWorkflowJob(jenkinsRule)
                 .configurePipelineDefinition(SUCCESS)
                 .schedule()
-                .configurePipelineDefinition(SLOW_3S)
+                .configurePipelineDefinition(SLOW_1S)
                 .schedule();
 
         Duration stdevDuration = stdevDurationColumn.getStdevDuration(runner.getJob());
@@ -53,7 +53,7 @@ class StdevDurationTest {
         var runner = JobRunner.createWorkflowJob(jenkinsRule)
                 .configurePipelineDefinition(FAILURE)
                 .schedule()
-                .configurePipelineDefinition(SLOW_3S)
+                .configurePipelineDefinition(SLOW_1S)
                 .schedule();
 
         Duration stdevDuration = stdevDurationColumn.getStdevDuration(runner.getJob());
@@ -111,7 +111,7 @@ class StdevDurationTest {
         var runner = JobRunner.createWorkflowJob(jenkinsRule)
                 .configurePipelineDefinition(SUCCESS)
                 .schedule()
-                .configurePipelineDefinition(SLOW_3S)
+                .configurePipelineDefinition(SLOW_1S)
                 .schedule();
 
         ListView listView =

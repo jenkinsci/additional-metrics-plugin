@@ -37,7 +37,7 @@ class MinSuccessDurationColumnTest {
         var runner = JobRunner.createWorkflowJob(jenkinsRule)
                 .configurePipelineDefinition(SUCCESS)
                 .schedule()
-                .configurePipelineDefinition(SLOW_3S)
+                .configurePipelineDefinition(SLOW_1S)
                 .schedule();
 
         RunWithDuration shortestRun = minSuccessDurationColumn.getShortestSuccessfulRun(runner.getJob());
